@@ -122,11 +122,12 @@ class PaymentServices::QIWI
       elsif response.code.to_s == '500'
         logger.error "#{phone}: Response code is 500, body: #{response.body}"
         raise InternalError, phone
+
       else
         logger.error "#{phone}: Unknown reponse content_type. code: #{response.code}"
         logger.error "#{phone}: Unknown reponse content_type. content_type: '#{response.content_type}'"
         logger.error "#{phone}: Unknown reponse content_type. body: #{response.body.to_s.force_encoding('utf-8')}"
-        raise "#{phone}: Unknown response: code=#{response.code}, content_type='#{response.content_type}'"
+        raise InternalError, "#{phone}: Unknown response: code=#{response.code}, content_type='#{response.content_type}', body: #{response.body.to_s.force_encoding('utf-8')}"
       end
     end
   end
