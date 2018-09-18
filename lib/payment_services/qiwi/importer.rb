@@ -4,7 +4,7 @@ require_relative 'client'
 class PaymentServices::QIWI
   class Importer
     CURRENCIES = {
-      643 => RUB
+      643 => :RUB
     }
 
     include Virtus.model
@@ -71,7 +71,7 @@ class PaymentServices::QIWI
 
     def create_from_data(qp, data)
       total = data['total']
-      currency = CURRENCIES[total['currency']] || raise("Unknown currency #{total['currency']}")
+      currency = Money::Currency.find! CURRENCIES[total['currency']]
       total = Money.from_amount(total['amount'], currency)
       qp.assign_attributes(
         direction_type: data['type'],

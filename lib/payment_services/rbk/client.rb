@@ -3,7 +3,8 @@ module RBK
     include AutoLogger
     TIMEOUT = 1
     CREATE_URL = 'https://api.rbk.money/v1/processing/invoices'.freeze
-    MAX_LIVE = PreliminaryOrder::MAX_LIVE - 2.minutes
+    # MAX_LIVE = PreliminaryOrder::MAX_LIVE - 2.minutes
+    MAX_LIVE = 20.minutes - 2.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
 
