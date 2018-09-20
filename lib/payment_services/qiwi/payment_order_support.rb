@@ -26,7 +26,8 @@ module PaymentOrderSupport
   end
 
   def compatible_payment_systems
-    PaymentSystem.by_payment_service PaymentServices::QIWI.name
+    # FIXME: надо избавится от этой зависимости
+    Gera::PaymentSystem.by_payment_service PaymentServices::QIWI.name
   end
 
   def find_preliminary_order!
