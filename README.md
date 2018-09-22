@@ -1,8 +1,12 @@
 # PaymentServices
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/PaymentServices`. To experiment with that code, run `bin/console` for an interactive prompt.
+На данный момент поддерживаемые сервисы:
 
-TODO: Delete this and the text above, and describe your gem
+* AdvCash
+* Payeer
+* PerfectMoney
+* QIWI
+* RBK
 
 ## Installation
 
