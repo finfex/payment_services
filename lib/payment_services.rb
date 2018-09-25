@@ -15,6 +15,7 @@ module PaymentServices
   autoload :Payeer, 'payment_services/payeer'
   autoload :PerfectMoney, 'payment_services/perfect_money'
   autoload :RBK, 'payment_services/rbk'
+  autoload :YandexMoney, 'payment_services/yandex_money'
 
   def self.configure
     @configuration = Configuration.new
