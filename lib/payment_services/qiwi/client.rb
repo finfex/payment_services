@@ -68,7 +68,7 @@ class PaymentServices::QIWI
         paymentMethod: { type: 'Account', accountId: DEFAULT_CURRENCY },
         fields: { account: destination_account }
       }.to_json
-
+      logger.info "request body #{request.body}"
       build_http(uri).request(request)
     end
 
