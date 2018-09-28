@@ -10,15 +10,16 @@ module PaymentServices
     end
 
     class << self
-      attr_reader :registry
-
       delegate(*SUBSERVICES, to: :registry)
 
       def register(type, subservice_class)
         raise "Unknown type #{type}" unless SUBSERVICES.include? type
         raise 'must be a class' unless subservice_class.is_a? Class
+        registry.send type.to_s + '=', subservice_class
+      end
+
+      def registry
         @registry ||= Registry.new
-        @registry.send type.to_s + '=', subservice_class
       end
     end
   end
