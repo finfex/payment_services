@@ -21,8 +21,13 @@ module PaymentOrderSupport
     update_column :linking_error_message, err.message
   end
 
+  # FIXME: сервис знает о заявках - это плохо
   def compatible_orders
-    PreliminaryOrder.active.where id_ps1: compatible_payment_systems.pluck(:id)
+    from = created_at.to_datetime - PreliminaryOrder::MAX_LIVE
+    to = created_at.to_datetime
+    PreliminaryOrder
+      .where(id_ps1: compatible_payment_systems.pluck(:id))
+      .by_created_at_from_to(from, to)
   end
 
   def compatible_payment_systems
