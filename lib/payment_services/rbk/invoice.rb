@@ -27,5 +27,9 @@ class PaymentServices::RBK
     def order
       Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
     end
+
+    def access_payment_token
+      payload['invoiceAccessToken']['payload']
+    end
   end
 end
