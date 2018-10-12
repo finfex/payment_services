@@ -17,8 +17,8 @@ class PaymentServices::RBK
       uri = URI.parse("https://checkout.rbk.money/v1/checkout.html")
       invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       uri.query = {
-        invoiceTemplateID: invoice.rbk_invoice_id,
-        invoiceTemplateAccessToken: invoice.access_payment_token,
+        invoiceID: invoice.rbk_invoice_id,
+        invoiceAccessToken: invoice.access_payment_token,
         name: I18n.t('payment_systems.default_company', order_id: order.public_id),
         description: I18n.t('payment_systems.default_product', order_id: order.public_id),
         bankCard: true,
@@ -26,7 +26,6 @@ class PaymentServices::RBK
         googlePay: false,
         samsungPay: false,
         amount: invoice.amount_in_cents,
-        popupMode: true,
         locale: 'auto'
       }.to_query
 
