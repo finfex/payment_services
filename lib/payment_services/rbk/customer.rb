@@ -24,6 +24,18 @@ class PaymentServices::RBK
       payload['customerAccessToken']['payload']
     end
 
+    def bind_payment_card_url
+      uri = URI.parse('https://checkout.rbk.money/v1/checkout.html')
+      uri.query = {
+        customerID: rbk_id,
+        customerAccessToken: access_token,
+        name: I18n.t('payment_systems.default_company'),
+        description: I18n.t('payment_systems.bind_card_product')
+      }.to_query
+
+      uri
+    end
+
     def self.create_using_api!(user)
       response = Client.new.create_customer(user)
       create!(
