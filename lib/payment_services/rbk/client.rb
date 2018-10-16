@@ -2,18 +2,43 @@ class PaymentServices::RBK
   class Client
     include AutoLogger
     TIMEOUT = 1
-    CREATE_URL = 'https://api.rbk.money/v1/processing/invoices'.freeze
+    API_V1 = 'https://api.rbk.money/v1'
+    CREATE_INVOICE_URL = "#{API_V1}/processing/invoices".freeze
+    CREATE_CUSTOMER_URL = "#{API_V1}/processing/customers".freeze
     MAX_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
 
     def create_invoice(order_id: , amount: )
-      response = rbk_api_call(order_id: order_id, amount: amount)
-      parsed_response = JSON.parse(response.body)
-      { id: parsed_response['invoice']['id'], payload: parsed_response }
-    rescue JSON::ParserError => err
-      log_and_notify(error: err, response: response, order_id: order_id, amount: amount)
-      { payload: { raw: response.body } }
+      request_body = {
+        shopID: SHOP,
+        dueDate: Time.zone.now + MAX_LIVE,
+        amount: amount,
+        currency: DEFAULT_CURRENCY,
+        product: I18n.t('payment_systems.default_product', order_id: order_id),
+        metadata: { order_public_id: order_id }
+      }
+      safely_parse http_request(
+        url: CREATE_INVOICE_URL,
+        method: :post,
+        body: request_body
+      )
+    end
+
+    def create_customer(user)
+      request_body = {
+        shopID: SHOP,
+        contactInfo: {
+          email: user.email,
+          phone: user.phone
+        },
+        metadata: { user_id: user.id }
+      }
+      safely_parse http_request(
+        url: CREATE_CUSTOMER_URL,
+        method: :post,
+        body: request_body
+      )
     end
 
     def create_payment
@@ -32,41 +57,6 @@ class PaymentServices::RBK
       #     "customerID": "xtdX5zlluy"
       #   }
       # }'
-    end
-
-    def create_customer
-      # curl -X POST \
-      #   https://api.rbk.money/v2/processing/customers \
-      #   -H 'Authorization: Bearer {API_KEY}' \
-      #   -H 'Cache-Control: no-cache' \
-      #   -H 'Content-Type: application/json; charset=utf-8' \
-      #   -H 'X-Request-ID: 1518694385' \
-      #   -d '{
-      #   "shopID": "TEST",
-      #   "contactInfo": {
-      #     "email": "user@example.com",
-      #     "phoneNumber": "79876543210"
-      #   },
-      #   "metadata": {}
-      # }'
-
-      # response
-      # {
-      #   "customer": {
-      #       "contactInfo": {
-      #           "email": "user@example.com",
-      #           "phoneNumber": "79876543210"
-      #       },
-      #       "id": "10UWY0qQpU0",
-      #       "metadata": {},
-      #       "shopID": "TEST",
-      #       "status": "unready"
-      #   },
-      #   "customerAccessToken": {
-      #       "payload": "{CUSTOMER_ACCESS_TOKEN}"
-      #   }
-      # }
-      # create customer active record
     end
 
     def check_customer_status
@@ -94,35 +84,15 @@ class PaymentServices::RBK
 
     private
 
-    def log_and_notify(error:, response:, order_id:, amount:)
-      logger.warn "Request failed #{response.class} #{response.body}"
-      Bugsnag.notify error do |report|
-        report.add_tab(:rbk_data, {
-          request_body: build_body(
-            order_id: order_id,
-            due_date: Time.zone.now + MAX_LIVE,
-            amount: amount
-          ),
-          response_class: response.class,
-          response_body: response.body
-        })
-      end
-    end
-
-    def rbk_api_call(order_id: , amount: )
-      uri = URI.parse(CREATE_URL)
+    def http_request(url: , method: , body: )
+      uri = URI.parse(url)
       https = http(uri)
       request = Net::HTTP::Post.new(uri.request_uri, headers)
-      request.body = build_body(
-        order_id: order_id,
-        due_date: Time.zone.now + MAX_LIVE,
-        amount: amount
-      )
+      request.body = body.to_json
 
-      logger.info "Post to #{uri} with payload #{request.body}"
+      logger.info "Request type: #{method} to #{uri} with payload #{request.body}"
       https.request(request)
     end
-
 
     def http(uri)
       Net::HTTP.start(uri.host, uri.port,
@@ -133,24 +103,26 @@ class PaymentServices::RBK
                      )
     end
 
-
     def headers
       {
         'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache',
         'X-Request-ID': SecureRandom.hex,
         'Authorization': "Bearer #{Secrets.rbk_money_api_key}"
       }
     end
 
-    def build_body(due_date: , order_id: , amount: )
-      {
-        shopID: SHOP,
-        dueDate: due_date,
-        amount: amount,
-        currency: DEFAULT_CURRENCY,
-        product: I18n.t('payment_systems.default_product', order_id: order_id),
-        metadata: { order_public_id: order_id }
-      }.to_json
+    def safely_parse(response)
+      JSON.parse(response.body)
+    rescue JSON::ParserError => err
+      logger.warn "Request failed #{response.class} #{response.body}"
+      Bugsnag.notify error do |report|
+        report.add_tab(:rbk_data, {
+          response_class: response.class,
+          response_body: response.body
+        })
+      end
+      response.body
     end
   end
 end

@@ -1,3 +1,5 @@
+require_relative 'client'
+
 class PaymentServices::RBK
   class Customer < ApplicationRecord
     include Workflow
@@ -9,17 +11,26 @@ class PaymentServices::RBK
 
     workflow_column :state
     workflow do
-      state :pending do
-        event :accept, transitions_to: :accepted
-        event :reject, transitions_to: :rejected
+      state :card_pending do
+        event :success, transitions_to: :card_binded
+        event :fail, transitions_to: :card_bind_error
       end
 
-      state :accepted
-      state :rejected
+      state :card_binded
+      state :card_bind_error
     end
 
     def access_token
-      payload['invoiceAccessToken']['payload']
+      payload['customerAccessToken']['payload']
+    end
+
+    def self.create_using_api!(user)
+      response = Client.new.create_customer(user)
+      create!(
+        user_id: user.id,
+        rbk_id: response['customer']['id'],
+        payload: response
+      )
     end
   end
 end
