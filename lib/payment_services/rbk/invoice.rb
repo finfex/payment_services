@@ -1,3 +1,5 @@
+require_relative 'payment'
+
 class PaymentServices::RBK
   class Invoice < ApplicationRecord
     include Workflow
@@ -30,6 +32,17 @@ class PaymentServices::RBK
 
     def access_payment_token
       payload['invoiceAccessToken']['payload']
+    end
+
+    def make_payment(customer)
+      response = Client.new.pay_invoice_by_customer(customer: customer, invoice: self)
+      PaymentServices::RBK::Payment.create!(
+        rbk_invoice_id: rbk_invoice_id,
+        amount_in_cents: response['amount'],
+        rbk_id: response['id'],
+        state: PaymentServices::RBK::Payment.rbk_state_to_state(response['status']),
+        payload: response,
+      )
     end
   end
 end

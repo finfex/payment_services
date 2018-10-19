@@ -3,11 +3,15 @@ class PaymentServices::RBK
     include AutoLogger
     TIMEOUT = 1
     API_V1 = 'https://api.rbk.money/v1'
-    CREATE_INVOICE_URL = "#{API_V1}/processing/invoices".freeze
+    INVOICES_URL = "#{API_V1}/processing/invoices".freeze
     CUSTOMERS_URL = "#{API_V1}/processing/customers".freeze
     MAX_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
+    PAYMENT_STATES = %w(pending processed captured cancelled refunded failed)
+    PAYMENT_SUCCESS_STATES = %w(processed captured)
+    PAYMENT_FAIL_STATES = %w(cancelled refunded failed)
+    PAYMENT_PENDING_STATES = %w(pending)
 
     def create_invoice(order_id: , amount: )
       request_body = {
@@ -19,7 +23,7 @@ class PaymentServices::RBK
         metadata: { order_public_id: order_id }
       }
       safely_parse http_request(
-        url: CREATE_INVOICE_URL,
+        url: INVOICES_URL,
         method: :POST,
         body: request_body
       )
@@ -41,22 +45,20 @@ class PaymentServices::RBK
       )
     end
 
-    def create_payment
-      #   curl -X POST \
-      #   https://api.rbk.money/v1/processing/invoices/xtdikju7jk/payments \
-      #   -H 'Authorization: Bearer {INVOICE_ACCESS_TOKEN}' \
-      #   -H 'Cache-Control: no-cache' \
-      #   -H 'Content-Type: application/json; charset=utf-8' \
-      #   -H 'X-Request-ID: 1518694583' \
-      #   -d '{
-      #   "flow": {
-      #     "type": "PaymentFlowInstant"
-      #   },
-      #   "payer": {
-      #     "payerType": "CustomerPayer",
-      #     "customerID": "xtdX5zlluy"
-      #   }
-      # }'
+    def pay_invoice_by_customer(invoice: , customer: )
+      request_body = {
+        flow: { type: 'PaymentFlowInstant' },
+        payer: {
+          payerType: 'CustomerPayer',
+          customerID: customer.rbk_id
+        }
+      }
+      safely_parse http_request(
+        url: "#{INVOICES_URL}/#{invoice.rbk_invoice_id}/payments",
+        method: :POST,
+        body: request_body,
+        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+      )
     end
 
     def customer_status(customer)
@@ -68,20 +70,24 @@ class PaymentServices::RBK
 
     private
 
-    def http_request(url: , method: , body: nil)
+    def http_request(url: , method: , body: nil, headers: {})
       uri = URI.parse(url)
       https = http(uri)
+      request = build_request(uri: uri, method: method, body: body, headers: headers)
+      logger.info "Request type: #{method} to #{uri} with payload #{request.body}"
+      https.request(request)
+    end
+
+    def build_request(uri: , method: , body: nil, headers: {})
       request = if method == :POST
-                  Net::HTTP::Post.new(uri.request_uri, headers)
-                  request.body = body.to_json
+                  Net::HTTP::Post.new(uri.request_uri, build_headers(headers))
                 elsif method == :GET
-                  Net::HTTP::Get.new(uri.request_uri, headers)
+                  Net::HTTP::Get.new(uri.request_uri, build_headers(headers))
                 else
                   raise "Запрос #{method} не поддерживается!"
                 end
-
-      logger.info "Request type: #{method} to #{uri} with payload #{request.body}"
-      https.request(request)
+      request.body = body.to_json if body
+      request
     end
 
     def http(uri)
@@ -93,13 +99,13 @@ class PaymentServices::RBK
                      )
     end
 
-    def headers
+    def build_headers(headers)
       {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-cache',
         'X-Request-ID': SecureRandom.hex,
         'Authorization': "Bearer #{Secrets.rbk_money_api_key}"
-      }
+      }.merge(headers)
     end
 
     def safely_parse(response)
