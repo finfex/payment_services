@@ -25,7 +25,7 @@ class PaymentServices::RBK
     end
 
     def bind_payment_card_url
-      uri = URI.parse('https://checkout.rbk.money/v1/checkout.html')
+      uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
       uri.query = {
         customerID: rbk_id,
         customerAccessToken: access_token,
@@ -34,6 +34,11 @@ class PaymentServices::RBK
       }.to_query
 
       uri
+    end
+
+    def actualise_status
+      response = Client.new.customer_status(self)
+      success! if response['status'] == 'ready'
     end
 
     def self.create_using_api!(user)

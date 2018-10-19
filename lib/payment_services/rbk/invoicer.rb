@@ -15,7 +15,7 @@ class PaymentServices::RBK
     end
 
     def pay_invoice_url
-      uri = URI.parse('https://checkout.rbk.money/v1/checkout.html')
+      uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
       invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       uri.query = {
         invoiceID: invoice.rbk_invoice_id,

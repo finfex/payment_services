@@ -4,7 +4,7 @@ class PaymentServices::RBK
     TIMEOUT = 1
     API_V1 = 'https://api.rbk.money/v1'
     CREATE_INVOICE_URL = "#{API_V1}/processing/invoices".freeze
-    CREATE_CUSTOMER_URL = "#{API_V1}/processing/customers".freeze
+    CUSTOMERS_URL = "#{API_V1}/processing/customers".freeze
     MAX_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
@@ -20,7 +20,7 @@ class PaymentServices::RBK
       }
       safely_parse http_request(
         url: CREATE_INVOICE_URL,
-        method: :post,
+        method: :POST,
         body: request_body
       )
     end
@@ -35,8 +35,8 @@ class PaymentServices::RBK
         metadata: { user_id: user.id }
       }
       safely_parse http_request(
-        url: CREATE_CUSTOMER_URL,
-        method: :post,
+        url: CUSTOMERS_URL,
+        method: :POST,
         body: request_body
       )
     end
@@ -59,36 +59,26 @@ class PaymentServices::RBK
       # }'
     end
 
-    def check_customer_status
-      # curl -X GET \
-      #   https://api.rbk.money/v2/processing/customers/10UWY0qQpU0 \
-      #   -H 'Authorization: Bearer {API_KEY}' \
-      #   -H 'Cache-Control: no-cache' \
-      #   -H 'Content-Type: application/json; charset=utf-8' \
-      #   -H 'X-Request-ID: 1527070201'
-      # в случае успешной привязки объект плательщика переходит в состояние ready
-
-      # response
-      # {
-      #     "contactInfo": {
-      #         "email": "user@example.com",
-      #         "phoneNumber": "79876543210"
-      #     },
-      #     "id": "10UWY0qQpU0",
-      #     "metadata": {},
-      #     "shopID": "TEST",
-      #     "status": "ready"
-      # }
-      # update rbk customer status
+    def customer_status(customer)
+      safely_parse http_request(
+        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}",
+        method: :GET
+      )
     end
 
     private
 
-    def http_request(url: , method: , body: )
+    def http_request(url: , method: , body: nil)
       uri = URI.parse(url)
       https = http(uri)
-      request = Net::HTTP::Post.new(uri.request_uri, headers)
-      request.body = body.to_json
+      request = if method == :POST
+                  Net::HTTP::Post.new(uri.request_uri, headers)
+                  request.body = body.to_json
+                elsif method == :GET
+                  Net::HTTP::Get.new(uri.request_uri, headers)
+                else
+                  raise "Запрос #{method} не поддерживается!"
+                end
 
       logger.info "Request type: #{method} to #{uri} with payload #{request.body}"
       https.request(request)
