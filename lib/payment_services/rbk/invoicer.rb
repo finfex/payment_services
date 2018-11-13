@@ -1,20 +1,21 @@
 require_relative 'invoice'
 require_relative 'client'
+require_relative 'customer'
 
 class PaymentServices::RBK
   class Invoicer < ::PaymentServices::Base::Invoicer
     def create_invoice(money)
-      invoice_data = Client.new.create_invoice(order_id: order.public_id, amount: money.cents)
+      response = Client.new.create_invoice(order_id: order.public_id, amount: money.cents)
       Invoice.create!(
         amount: money.to_f,
         order_public_id: order.public_id,
-        rbk_invoice_id: invoice_data[:id],
-        payload: invoice_data[:payload]
+        rbk_invoice_id: response['invoice']['id'],
+        payload: response
       )
     end
 
     def pay_invoice_url
-      uri = URI.parse("https://checkout.rbk.money/v1/checkout.html")
+      uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
       invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       uri.query = {
         invoiceID: invoice.rbk_invoice_id,
