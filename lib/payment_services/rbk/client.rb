@@ -112,7 +112,7 @@ class PaymentServices::RBK
       JSON.parse(response.body)
     rescue JSON::ParserError => err
       logger.warn "Request failed #{response.class} #{response.body}"
-      Bugsnag.notify error do |report|
+      Bugsnag.notify err do |report|
         report.add_tab(:rbk_data, {
           response_class: response.class,
           response_body: response.body
