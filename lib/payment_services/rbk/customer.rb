@@ -38,18 +38,13 @@ class PaymentServices::RBK
       uri
     end
 
-    def update_binding_information(card_details:, status:)
-      update!(binded_card: card_details)
-      success! if status == RBK_STATUS_SUCCESS
-    end
-
     def actualise_status
       response = Client.new.customer_status(self)
       success! if response['status'] == RBK_STATUS_SUCCESS
     end
 
-    def refresh_bindings
-      update!(binded_cards: Client.new.customer_bindings(self))
+    def refresh_payment_bindings!
+      update!(payment_bindings: Client.new.customer_bindings(self))
     end
 
     def rbk_events
