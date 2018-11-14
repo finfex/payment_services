@@ -48,6 +48,14 @@ class PaymentServices::RBK
       success! if response['status'] == RBK_STATUS_SUCCESS
     end
 
+    def refresh_bindings
+      update!(binded_cards: Client.new.customer_bindings(self))
+    end
+
+    def rbk_events
+      Client.new.customer_events(self)
+    end
+
     def self.create_using_api!(user)
       response = Client.new.create_customer(user)
       create!(

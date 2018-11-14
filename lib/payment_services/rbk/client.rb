@@ -68,6 +68,20 @@ class PaymentServices::RBK
       )
     end
 
+    def customer_events(customer)
+      safely_parse http_request(
+        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/events?limit=100",
+        method: :GET
+      )
+    end
+
+    def customer_bindings(customer)
+      safely_parse http_request(
+        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/bindings",
+        method: :GET
+      )
+    end
+
     private
 
     def http_request(url: , method: , body: nil, headers: {})
