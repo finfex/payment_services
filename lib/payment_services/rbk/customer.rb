@@ -1,4 +1,5 @@
 require_relative 'client'
+require_relative 'payment_card'
 
 class PaymentServices::RBK
   class Customer < ApplicationRecord
@@ -10,16 +11,19 @@ class PaymentServices::RBK
 
     validates :user_id, :rbk_id, presence: true
     belongs_to :user
+    has_many :payment_cards, class_name: 'PaymentServices::RBK::PaymentCard', foreign_key: :rbk_customer_id, dependent: :destroy
 
     workflow_column :state
     workflow do
-      state :card_pending do
-        event :success, transitions_to: :card_binded
-        event :fail, transitions_to: :card_bind_error
+      state :unvefified do
+        event :start, transitions_to: :processing
       end
-
-      state :card_binded
-      state :card_bind_error
+      state :processing do
+        event :success, transitions_to: :verified
+        event :fail, transition_to: :failed
+      end
+      state :verified
+      state :failed
     end
 
     def access_token
@@ -38,20 +42,15 @@ class PaymentServices::RBK
       uri
     end
 
-    def actualise_status
-      response = Client.new.customer_status(self)
-      success! if response['status'] == RBK_STATUS_SUCCESS
-    end
-
-    def refresh_payment_bindings!
-      update!(payment_bindings: Client.new.customer_bindings(self))
+    def get_status
+      Client.new.customer_status(self)
     end
 
     def rbk_events
       Client.new.customer_events(self)
     end
 
-    def self.create_using_api!(user)
+    def self.create_in_rbk!(user)
       response = Client.new.create_customer(user)
       create!(
         user_id: user.id,
