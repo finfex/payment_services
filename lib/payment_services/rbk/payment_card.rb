@@ -32,6 +32,11 @@ class PaymentServices::RBK
       )
     end
 
+    def masked_number
+      # NOTE dup нужен, т.к. insert изменяет исходный объект
+      "#{bin.dup.insert(4, ' ')}** **** #{last_digits}"
+    end
+
     private
 
     def update_verification_state
