@@ -5,8 +5,8 @@ class PaymentServices::RBK
   class PaymentCard < ApplicationRecord
     self.table_name = 'rbk_payment_cards'
 
-    enum card_type: %i(bank_card applepay googlepay)
-    enum binding_type: %i(regular verification)
+    enum card_type: %i(bank_card applepay googlepay), _prefix: :card_type
+    enum binding_type: %i(regular verification), _prefix: :binding_type
 
     belongs_to :rbk_customer, class_name: 'PaymentServices::RBK::Customer', foreign_key: :rbk_customer_id
 
@@ -21,13 +21,15 @@ class PaymentServices::RBK
     end
 
     def self.create_for_customer(customer: customer, card_data: card_data)
-      card_details = card_data.dig('paymentResource', 'paymentToolDetails')
+      card_data.deep_symbolize_keys!
+      card_details = card_data.dig(:paymentResource, :paymentToolDetails)
       customer.payment_cards.create!(
-        rbk_id: card_data['id'],
-        bin: card_details['bin'],
-        last_digits: card_details['lastDigits'],
-        payment_system: card_details['paymentSystem'],
-        card_type: card_details['tokenProvider'] || 'bank_card',
+        rbk_id: card_data[:id],
+        bin: card_details[:bin],
+        last_digits: card_details[:lastDigits],
+        payment_system: card_details[:paymentSystem],
+        card_type: (card_details[:tokenProvider] || :bank_card),
+        binding_type: (customer.processing? ? :verification : :regular),
         payload: card_data
       )
     end
