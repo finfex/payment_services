@@ -12,7 +12,7 @@ class PaymentServices::RBK
 
     after_create :update_verification_state
 
-    def self.fetch_cards_for(customer: customer)
+    def self.fetch_cards_for(customer: )
       raw_cards = Client.new.customer_bindings(customer)
       raw_cards.each do |raw_card|
         payment_card = customer.payment_cards.find_by(rbk_id: raw_card['id'])
@@ -20,7 +20,7 @@ class PaymentServices::RBK
       end
     end
 
-    def self.create_for_customer(customer: customer, card_data: card_data)
+    def self.create_for_customer(customer: , card_data:)
       card_data.deep_symbolize_keys!
       card_details = card_data.dig(:paymentResource, :paymentToolDetails)
       customer.payment_cards.create!(
