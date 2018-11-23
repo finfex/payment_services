@@ -1,5 +1,6 @@
 require_relative 'client'
 require_relative 'payment_card'
+require 'jwt'
 
 class PaymentServices::RBK
   class Customer < ApplicationRecord
@@ -26,11 +27,9 @@ class PaymentServices::RBK
       state :failed
     end
 
-    def access_token
-      payload['customerAccessToken']['payload']
-    end
-
     def bind_payment_card_url
+      refresh_token! unless access_token_valid?
+
       uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
       uri.query = {
         customerID: rbk_id,
@@ -50,13 +49,33 @@ class PaymentServices::RBK
       Client.new.customer_events(self)
     end
 
+    def refresh_token!
+      response = Client.new.get_token(self)
+      update!(
+        access_token: response['payload'],
+        access_token_expired_at: self.class.expiration_time_from(response['payload'])
+      )
+    end
+
+    def access_token_valid?
+      access_token_expired_at > Time.zone.now
+    end
+
     def self.create_in_rbk!(user)
       response = Client.new.create_customer(user)
+      access_token = response['customerAccessToken']['payload']
       create!(
         user_id: user.id,
         rbk_id: response['customer']['id'],
+        access_token: access_token,
+        access_token_expired_at: expiration_time_from(access_token),
         payload: response
       )
+    end
+
+    def self.expiration_time_from(token)
+      token_data = JWT.decode(token, nil, false).first
+      Time.at(token_data['exp'])
     end
   end
 end

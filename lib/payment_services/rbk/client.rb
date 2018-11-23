@@ -82,6 +82,13 @@ class PaymentServices::RBK
       )
     end
 
+    def get_token(customer)
+      safely_parse http_request(
+        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/access-tokens",
+        method: :POST
+      )
+    end
+
     private
 
     def http_request(url: , method: , body: nil, headers: {})
