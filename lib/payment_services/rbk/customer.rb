@@ -58,7 +58,7 @@ class PaymentServices::RBK
     end
 
     def access_token_valid?
-      access_token_expired_at > Time.zone.now
+      access_token_expired_at.present? && access_token_expired_at > Time.zone.now
     end
 
     def self.create_in_rbk!(user)
