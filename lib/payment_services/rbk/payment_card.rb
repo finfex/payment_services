@@ -6,11 +6,8 @@ class PaymentServices::RBK
     self.table_name = 'rbk_payment_cards'
 
     enum card_type: %i(bank_card applepay googlepay), _prefix: :card_type
-    enum binding_type: %i(regular verification), _prefix: :binding_type
 
     belongs_to :rbk_customer, class_name: 'PaymentServices::RBK::Customer', foreign_key: :rbk_customer_id
-
-    after_create :update_verification_state
 
     def self.fetch_cards_for(customer: )
       raw_cards = Client.new.customer_bindings(customer)
@@ -27,25 +24,10 @@ class PaymentServices::RBK
         rbk_id: card_data[:id],
         bin: card_details[:bin],
         last_digits: card_details[:lastDigits],
-        payment_system: card_details[:paymentSystem],
+        brand: card_details[:paymentSystem],
         card_type: (card_details[:tokenProvider] || :bank_card),
-        binding_type: (customer.processing? ? :verification : :regular),
         payload: card_data
       )
-    end
-
-    def masked_number
-      # NOTE dup нужен, т.к. insert изменяет исходный объект
-      "#{bin.dup.insert(4, ' ')}** **** #{last_digits}"
-    end
-
-    private
-
-    def update_verification_state
-      if rbk_customer.processing?
-        update!(binding_type: :verification)
-        rbk_customer.success!
-      end
     end
   end
 end

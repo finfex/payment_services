@@ -10,7 +10,6 @@ class PaymentServices::RBK
 
     scope :ordered, -> { order(id: :desc) }
 
-    validates :user_id, :rbk_id, presence: true
     belongs_to :user
     has_many :payment_cards, class_name: 'PaymentServices::RBK::PaymentCard', foreign_key: :rbk_customer_id, dependent: :destroy
 
@@ -26,6 +25,8 @@ class PaymentServices::RBK
       state :verified
       state :failed
     end
+
+    validates :user_id, :rbk_id, presence: true
 
     def bind_payment_card_url
       refresh_token! unless access_token_valid?
