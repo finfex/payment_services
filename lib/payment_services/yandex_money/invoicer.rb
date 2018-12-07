@@ -17,7 +17,7 @@ class PaymentServices::YandexMoney
           shortvalue: description,
           targets: description,
           label: order.public_id,
-          sum: order.income_money_with_fee.to_f,
+          sum: order.invoice_money.to_f,
           paymentType: 'PC',
           'quickpay-form' => 'shop'
         }
