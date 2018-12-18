@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'client'
 require_relative 'payment_card'
@@ -18,7 +20,7 @@ class PaymentServices::RBK
 
     validates :user_id, :rbk_id, presence: true
 
-    # TODO Выделить в команды
+    # TODO: Выделить в команды
     def self.create_in_rbk!(user)
       response = Client.new.create_customer(user)
       access_token = response['customerAccessToken']['payload']
@@ -73,12 +75,12 @@ class PaymentServices::RBK
     def create_payment_card!(card_data:)
       card_details = card_data.dig(:paymentResource, :paymentToolDetails)
       payment_cards.create!(
-        rbk_id:      card_data[:id],
-        bin:         card_details[:bin],
+        rbk_id: card_data[:id],
+        bin: card_details[:bin],
         last_digits: card_details[:lastDigits],
-        brand:       card_details[:paymentSystem],
-        card_type:   (card_details[:tokenProvider] || :bank_card),
-        payload:     card_data
+        brand: card_details[:paymentSystem],
+        card_type: (card_details[:tokenProvider] || :bank_card),
+        payload: card_data
       )
     end
   end

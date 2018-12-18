@@ -1,7 +1,9 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
 
-require "payment_services/version"
-require "payment_services/configuration"
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
+require 'payment_services/version'
+require 'payment_services/configuration'
 
 module PaymentServices
   class << self

@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 module PaymentServices
   # Базовый класс Инвойсера. Сервис который выставляет счета
@@ -10,7 +12,7 @@ module PaymentServices
 
     attribute :order # PaymentServices.configuration.preliminary_order_class
 
-    def create_invoice( money )
+    def create_invoice(_money)
       raise "Method `create_invoice` is not implemented for class #{self.class}"
     end
 

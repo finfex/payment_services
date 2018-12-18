@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'client'
 
@@ -38,16 +40,14 @@ class PaymentServices::RBK
     end
 
     def self.rbk_state_to_state(rbk_state)
-      def convert_rbk_state(rbk_state)
-        if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
-          :success
-        elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
-          :fail
-        elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
-          :pending
-        else
-          raise("Такого статуса не существует: #{rbk_state}")
-        end
+      if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
+        :success
+      elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
+        :fail
+      elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
+        :pending
+      else
+        raise("Такого статуса не существует: #{rbk_state}")
       end
     end
   end

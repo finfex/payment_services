@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'payment'
 require_relative 'client'
@@ -7,7 +9,7 @@ class PaymentServices::QIWI
   class Importer
     CURRENCIES = {
       643 => :RUB
-    }
+    }.freeze
 
     include Virtus.model
 
@@ -36,10 +38,10 @@ class PaymentServices::QIWI
 
     def import_payment(data)
       txn_id = data['txnId']
-      qp = Payment.find_by_txn_id txn_id
+      qiwi_payment = Payment.find_by_txn_id txn_id
 
-      if qp.present?
-        diff = HashDiff.diff(data, qp.data, strict: false)
+      if qiwi_payment.present?
+        diff = HashDiff.diff(data, qiwi_payment.data, strict: false)
 
         if diff.present?
           logger.info "Update #{txn_id} (#{diff}) with #{data}"
@@ -48,11 +50,11 @@ class PaymentServices::QIWI
           throw :next
         end
       else
-        qp = Payment.new
+        qiwi_payment = Payment.new
         logger.info "Create #{txn_id} with #{data}"
       end
-      create_from_data qp, data
-      qp.save!
+      create_from_data qiwi_payment, data
+      qiwi_payment.save!
     end
 
     private
@@ -61,31 +63,32 @@ class PaymentServices::QIWI
       raise("Wallet(#{wallet.id})#qiwi_phone is empty") if wallet.qiwi_phone.blank?
 
       Client.new(
-        phone: Phoner::Phone.parse(wallet.qiwi_phone).to_s.tr('+',''), # Отдаем телефон без плюса
+        phone: Phoner::Phone.parse(wallet.qiwi_phone).to_s.tr('+', ''), # Отдаем телефон без плюса
         token: wallet.api_key.presence || raise('wallet#api_key is empty')
       )
     end
 
     def parse_order_public_id(comment)
       return unless comment =~ /N(\d+)/
-      $1.to_i
+
+      Regexp.last_match(1).to_i
     end
 
-    def create_from_data(qp, data)
+    def create_from_data(qiwi_payment, data)
       total = data['total']
       currency = Money::Currency.find! CURRENCIES[total['currency']]
       total = Money.from_amount(total['amount'], currency)
-      qp.assign_attributes(
+      qiwi_payment.assign_attributes(
         direction_type: data['type'],
-        account:    data['account'],
-        status:     data['status'],
-        date:       Time.parse(data['date']),
-        txn_id:     data['txnId'],
-        comment:    data['comment'],
+        account: data['account'],
+        status: data['status'],
+        date: Time.parse(data['date']),
+        txn_id: data['txnId'],
+        comment: data['comment'],
         # Пока не используем
         # order_public_id: parse_order_public_id(data['comment']),
-        data:       data,
-        total:      total
+        data: data,
+        total: total
       )
     end
   end

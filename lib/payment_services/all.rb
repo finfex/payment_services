@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require 'payment_services/qiwi'
 require 'payment_services/adv_cash'

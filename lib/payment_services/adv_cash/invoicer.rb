@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'invoice'
 
@@ -6,7 +8,7 @@ class PaymentServices::AdvCash
   class Invoicer < ::PaymentServices::Base::Invoicer
     ADV_CASH_URL = 'https://wallet.advcash.com/sci/'
 
-    def create_invoice money
+    def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 

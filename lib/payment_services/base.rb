@@ -1,10 +1,12 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 module PaymentServices
   # Базовый класс для платежного сервиса. Описывает подсервисы и хранит конфигурацию
   #
   class Base
-    SUBSERVICES = %i(invoicer importer payout_adapter)
+    SUBSERVICES = %i[invoicer importer payout_adapter].freeze
 
     # Реестр подсервисов
     class Registry
@@ -17,6 +19,7 @@ module PaymentServices
       def register(type, subservice_class)
         raise "Unknown type #{type}" unless SUBSERVICES.include? type
         raise 'must be a class' unless subservice_class.is_a? Class
+
         registry.send type.to_s + '=', subservice_class
       end
 

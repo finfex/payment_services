@@ -1,21 +1,23 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 class PaymentServices::RBK
-  class Client
+  class Client # rubocop:disable Metrics/ClassLength
     include AutoLogger
     TIMEOUT = 1
     API_V1 = 'https://api.rbk.money/v1'
-    INVOICES_URL = "#{API_V1}/processing/invoices".freeze
-    CUSTOMERS_URL = "#{API_V1}/processing/customers".freeze
+    INVOICES_URL = "#{API_V1}/processing/invoices"
+    CUSTOMERS_URL = "#{API_V1}/processing/customers"
     MAX_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
-    PAYMENT_STATES = %w(pending processed captured cancelled refunded failed)
-    PAYMENT_SUCCESS_STATES = %w(processed captured)
-    PAYMENT_FAIL_STATES = %w(cancelled refunded failed)
-    PAYMENT_PENDING_STATES = %w(pending)
+    PAYMENT_STATES = %w[pending processed captured cancelled refunded failed].freeze
+    PAYMENT_SUCCESS_STATES = %w[processed captured].freeze
+    PAYMENT_FAIL_STATES = %w[cancelled refunded failed].freeze
+    PAYMENT_PENDING_STATES = %w[pending].freeze
 
-    def create_invoice(order_id: , amount: )
+    def create_invoice(order_id:, amount:)
       request_body = {
         shopID: SHOP,
         dueDate: Time.zone.now + MAX_LIVE,
@@ -47,7 +49,7 @@ class PaymentServices::RBK
       )
     end
 
-    def pay_invoice_by_customer(invoice: , customer: )
+    def pay_invoice_by_customer(invoice:, customer:)
       request_body = {
         flow: { type: 'PaymentFlowInstant' },
         payer: {
@@ -93,7 +95,7 @@ class PaymentServices::RBK
 
     private
 
-    def http_request(url: , method: , body: nil, headers: {})
+    def http_request(url:, method:, body: nil, headers: {})
       uri = URI.parse(url)
       https = http(uri)
       request = build_request(uri: uri, method: method, body: body, headers: headers)
@@ -101,7 +103,7 @@ class PaymentServices::RBK
       https.request(request)
     end
 
-    def build_request(uri: , method: , body: nil, headers: {})
+    def build_request(uri:, method:, body: nil, headers: {})
       request = if method == :POST
                   Net::HTTP::Post.new(uri.request_uri, build_headers(headers))
                 elsif method == :GET
@@ -118,8 +120,7 @@ class PaymentServices::RBK
                       use_ssl: true,
                       verify_mode: OpenSSL::SSL::VERIFY_NONE,
                       open_timeout: TIMEOUT,
-                      read_timeout: TIMEOUT
-                     )
+                      read_timeout: TIMEOUT)
     end
 
     def build_headers(headers)
@@ -136,10 +137,9 @@ class PaymentServices::RBK
     rescue JSON::ParserError => err
       logger.warn "Request failed #{response.class} #{response.body}"
       Bugsnag.notify err do |report|
-        report.add_tab(:rbk_data, {
-          response_class: response.class,
-          response_body: response.body
-        })
+        report.add_tab(:rbk_data,
+                       response_class: response.class,
+                       response_body: response.body)
       end
       response.body
     end

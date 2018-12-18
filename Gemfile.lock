@@ -80,7 +80,7 @@ DEPENDENCIES
   payment_services!
   rake (~> 10.0)
   rspec (~> 3.0)
-  rubocop
+  rubocop (~> 0.61)
 
 BUNDLED WITH
    1.17.1

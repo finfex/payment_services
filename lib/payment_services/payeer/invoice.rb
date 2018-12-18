@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 class PaymentServices::Payeer
   class Invoice < ApplicationRecord
@@ -26,7 +28,7 @@ class PaymentServices::Payeer
       state :cancelled
     end
 
-    def pay(payload: )
+    def pay(payload:)
       update(payload: payload)
     end
 

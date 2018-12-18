@@ -1,4 +1,6 @@
-# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
 
 class BlockchainComClient
   Blockchain::TIMEOUT_SECONDS = 5
@@ -14,7 +16,7 @@ class BlockchainComClient
   DEFAULT_GAP_LIMIT = 1000
 
   def generate_address(callback_token)
-    logger.info "blockchain.com start address generation"
+    logger.info 'blockchain.com start address generation'
     api_root = Rails.application.routes.url_helpers.public_public_api_root_url
     response = client.receive(
       Secrets.blockchain_xpub,
