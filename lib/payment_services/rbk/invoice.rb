@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require_relative 'payment'
 
 class PaymentServices::RBK

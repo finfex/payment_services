@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require_relative 'client'
 # Сервис выплаты на QIWI. Выполняет запрос на QIWI-Клиент.
 #

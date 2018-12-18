@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require_relative 'invoice'
 require_relative 'client'
 require_relative 'customer'

@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require_relative 'client'
 
 class PaymentServices::RBK
@@ -11,7 +13,10 @@ class PaymentServices::RBK
     monetize :amount_in_cents, as: :amount, with_currency: :rub
     validates :amount_in_cents, :rbk_id, :rbk_invoice_id, :state, presence: true
 
-    belongs_to :invoice, class_name: 'PaymentServices::RBK::Invoice', foreign_key: :rbk_invoice_id, primary_key: :rbk_invoice_id
+    belongs_to :invoice,
+               class_name: 'PaymentServices::RBK::Invoice',
+               foreign_key: :rbk_invoice_id,
+               primary_key: :rbk_invoice_id
 
     workflow_column :state
     workflow do

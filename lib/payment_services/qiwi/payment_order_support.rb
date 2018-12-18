@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 module PaymentOrderSupport
   Error = Class.new StandardError
   extend ActiveSupport::Concern
@@ -45,7 +47,10 @@ module PaymentOrderSupport
         raise Error, "Не совпадают суммы #{order.income_money} <> #{total}"
       end
     elsif orders.many?
-      raise Error, "У оплаты через QIWI ##{id} (#{total}) несколько активных (моложе #{PreliminaryOrder::MAX_LIVE.inspect}) предварительных заявок, не знаю к какой привязаться (#{orders.pluck(:id_in_unixtime)}"
+      raise Error,
+            "У оплаты через QIWI ##{id} (#{total}) несколько активных \
+          (моложе #{PreliminaryOrder::MAX_LIVE.inspect}) предварительных заявок, \
+          не знаю к какой привязаться (#{orders.pluck(:id_in_unixtime)}"
     else
       raise Error, "Пришла оплата в QIWI ##{id} на сумму #{total}, но такой предварительрной заявки нет"
     end

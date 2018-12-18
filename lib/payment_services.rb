@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require "payment_services/version"
 require "payment_services/configuration"
 

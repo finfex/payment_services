@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 class PaymentServices::QIWI
   class Client
     include Virtus.model strict: true
@@ -7,7 +9,8 @@ class PaymentServices::QIWI
     InternalError = Class.new Error
 
     class ServerError < Error
-      # {"serviceName":"payment-history","errorCode":"auth.forbidden","userMessage":"Access denied","dateTime":"2018-08-21T12:13:34.514+03:00","traceId":"dfe5e6296491abfb"}
+      # {"serviceName":"payment-history","errorCode":"auth.forbidden",
+      # "userMessage":"Access denied","dateTime":"2018-08-21T12:13:34.514+03:00","traceId":"dfe5e6296491abfb"}
       def initialize(result)
         @result = OpenStruct.new(result)
       end
@@ -117,7 +120,9 @@ class PaymentServices::QIWI
         end
 
         # Пример удачного ответа
-        # {"id"=>"13", "terms"=>"99", "fields"=>{"account"=>"+79050274414"}, "sum"=>{"amount"=>30, "currency"=>"643"}, "transaction"=>{"id"=>"13774661349", "state"=>{"code"=>"Accepted"}}, "source"=>"account_643"}
+        # {"id"=>"13", "terms"=>"99", "fields"=>{"account"=>"+79050274414"},
+        # "sum"=>{"amount"=>30, "currency"=>"643"}, "transaction"=>{"id"=>"13774661349",
+        # "state"=>{"code"=>"Accepted"}}, "source"=>"account_643"}
         result
       elsif response.code.to_s == '500'
         logger.error "#{phone}: Response code is 500, body: #{response.body}"
@@ -127,7 +132,10 @@ class PaymentServices::QIWI
         logger.error "#{phone}: Unknown reponse content_type. code: #{response.code}"
         logger.error "#{phone}: Unknown reponse content_type. content_type: '#{response.content_type}'"
         logger.error "#{phone}: Unknown reponse content_type. body: #{response.body.to_s.force_encoding('utf-8')}"
-        raise InternalError, "#{phone}: Unknown response: code=#{response.code}, content_type='#{response.content_type}', body: #{response.body.to_s.force_encoding('utf-8')}"
+        raise InternalError,
+              "#{phone}: Unknown response: code=#{response.code}, \
+            content_type='#{response.content_type}', \
+            body: #{response.body.to_s.force_encoding('utf-8')}"
       end
     end
   end

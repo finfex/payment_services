@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require_relative 'client'
 require_relative 'payment_card'
 require 'jwt'
@@ -7,7 +9,10 @@ class PaymentServices::RBK
     self.table_name = 'rbk_money_customers'
 
     belongs_to :user
-    has_many :payment_cards, class_name: 'PaymentServices::RBK::PaymentCard', foreign_key: :rbk_customer_id, dependent: :destroy
+    has_many :payment_cards,
+             class_name: 'PaymentServices::RBK::PaymentCard',
+             foreign_key: :rbk_customer_id,
+             dependent: :destroy
 
     scope :ordered, -> { order(id: :desc) }
 

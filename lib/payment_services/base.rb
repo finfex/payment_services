@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 module PaymentServices
   # Базовый класс для платежного сервиса. Описывает подсервисы и хранит конфигурацию
   #

@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require 'payment_services/qiwi'
 require 'payment_services/adv_cash'
 require 'payment_services/payeer'

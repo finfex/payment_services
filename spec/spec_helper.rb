@@ -1,5 +1,11 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 require "bundler/setup"
-require "PaymentServices"
+Bundler.require(:development, :test)
+require 'active_support/core_ext/module'
+require 'virtus'
+
+require "payment_services"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -1,3 +1,5 @@
+# Copyright (c) 2018 FINFEX <danil@brandymint.ru>
+
 class PaymentServices::PerfectMoney
   class Invoice < ApplicationRecord
     include Workflow
