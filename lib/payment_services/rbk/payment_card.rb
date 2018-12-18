@@ -17,19 +17,6 @@ class PaymentServices::RBK
       end
     end
 
-    def self.create_for_customer(customer: , card_data:)
-      card_data.deep_symbolize_keys!
-      card_details = card_data.dig(:paymentResource, :paymentToolDetails)
-      customer.payment_cards.create!(
-        rbk_id: card_data[:id],
-        bin: card_details[:bin],
-        last_digits: card_details[:lastDigits],
-        brand: card_details[:paymentSystem],
-        card_type: (card_details[:tokenProvider] || :bank_card),
-        payload: card_data
-      )
-    end
-
     def masked_number
       # NOTE dup нужен, т.к. insert изменяет исходный объект
       "#{bin.dup.insert(4, ' ')}** **** #{last_digits}"
