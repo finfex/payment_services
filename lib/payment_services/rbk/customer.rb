@@ -14,19 +14,6 @@ class PaymentServices::RBK
     belongs_to :user
     has_many :payment_cards, class_name: 'PaymentServices::RBK::PaymentCard', foreign_key: :rbk_customer_id, dependent: :destroy
 
-    workflow_column :state
-    workflow do
-      state :unvefified do
-        event :start, transitions_to: :processing
-      end
-      state :processing do
-        event :success, transitions_to: :verified
-        event :fail, transition_to: :failed
-      end
-      state :verified
-      state :failed
-    end
-
     def bind_payment_card_url
       refresh_token! unless access_token_valid?
 
