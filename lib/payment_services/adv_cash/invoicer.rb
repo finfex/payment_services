@@ -1,19 +1,25 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 require_relative 'invoice'
 
 class PaymentServices::AdvCash
   class Invoicer < ::PaymentServices::Base::Invoicer
     ADV_CASH_URL = 'https://wallet.advcash.com/sci/'
 
-    def create_invoice money
+    def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 
-    def invoice_form_data
+    def invoice_form_data # rubocop:disable Metrics/MethodLength
       invoice = Invoice.find_by!(order_public_id: order.public_id)
 
       form_data = {
-        email: order.income_wallet.adv_cash_merchant_email.presence || raise("Не установлено поле adv_cash_merchant_email у кошелька #{order.income_wallet.id}"),
-        shop_name: order.income_wallet.merchant_id.presence || raise("Не установлено поле merchant_id у кошелька #{order.income_wallet.id}"),
+        email: order.income_wallet.adv_cash_merchant_email.presence ||
+               raise("Не установлено поле adv_cash_merchant_email у кошелька #{order.income_wallet.id}"),
+        shop_name: order.income_wallet.merchant_id.presence ||
+                   raise("Не установлено поле merchant_id у кошелька #{order.income_wallet.id}"),
         amount: invoice.formatted_amount,
         currency: invoice.amount.currency_as_string,
         order_id: invoice.order_public_id

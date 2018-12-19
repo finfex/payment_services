@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 module PaymentServices
   class RBK < Base
     CHECKOUT_URL = 'https://checkout.rbk.money/v1/checkout.html'

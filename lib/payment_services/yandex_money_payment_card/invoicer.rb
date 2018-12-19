@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 require_relative 'invoice'
 
 class PaymentServices::YandexMoneyPaymentCard
   class Invoicer < ::PaymentServices::Base::Invoicer
-    def create_invoice(money)
-    end
+    def create_invoice(money); end
 
     def invoice_form_data
       description = I18n.t('payment_systems.personal_payment', order_id: order.public_id)

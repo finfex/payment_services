@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 class PaymentServices::QIWI
   class Client
     include Virtus.model strict: true
@@ -7,7 +11,8 @@ class PaymentServices::QIWI
     InternalError = Class.new Error
 
     class ServerError < Error
-      # {"serviceName":"payment-history","errorCode":"auth.forbidden","userMessage":"Access denied","dateTime":"2018-08-21T12:13:34.514+03:00","traceId":"dfe5e6296491abfb"}
+      # {"serviceName":"payment-history","errorCode":"auth.forbidden",
+      # "userMessage":"Access denied","dateTime":"2018-08-21T12:13:34.514+03:00","traceId":"dfe5e6296491abfb"}
       def initialize(result)
         @result = OpenStruct.new(result)
       end
@@ -38,8 +43,8 @@ class PaymentServices::QIWI
 
     TIMEOUT = 1
     ROWS = 10 # max 50
-    URL_LAST_PAYMENTS = 'https://edge.qiwi.com/payment-history/v2/persons/:phone/payments'.freeze
-    URL_CREATE_PAYOUT = 'https://edge.qiwi.com/sinap/api/v2/terms/99/payments'.freeze
+    URL_LAST_PAYMENTS = 'https://edge.qiwi.com/payment-history/v2/persons/:phone/payments'
+    URL_CREATE_PAYOUT = 'https://edge.qiwi.com/sinap/api/v2/terms/99/payments'
 
     DEFAULT_CURRENCY = '643'
 
@@ -52,13 +57,13 @@ class PaymentServices::QIWI
       list
     end
 
-    def create_payout(id: , amount: , destination_account: )
+    def create_payout(id:, amount:, destination_account:)
       parse_response submit_payout(id: id, amount: amount, destination_account: destination_account)
     end
 
     private
 
-    def submit_payout(id: , amount: , destination_account: )
+    def submit_payout(id:, amount:, destination_account:)
       uri = URI.parse URL_CREATE_PAYOUT
       logger.info "Create payment #{uri}"
       request = Net::HTTP::Post.new(uri, headers)
@@ -77,7 +82,7 @@ class PaymentServices::QIWI
       uri.query = "rows=#{ROWS}"
       logger.info "Get last payments #{uri}"
       response = build_http(uri).request Net::HTTP::Get.new uri, headers
-      logger.info "Response code: #{response.code.to_s}"
+      logger.info "Response code: #{response.code}"
 
       response
     end
@@ -95,14 +100,14 @@ class PaymentServices::QIWI
 
     def headers
       {
-        'Accept'        => 'application/json',
-        'Content-Type'  => 'application/json',
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{token}"
       }
     end
 
     def parse_response(response)
-      if response.content_type =~ /json/
+      if /json/.match?(response.content_type)
         logger.debug "response is json: #{response.body}"
         result = MultiJson.load response.body
 
@@ -117,7 +122,9 @@ class PaymentServices::QIWI
         end
 
         # Пример удачного ответа
-        # {"id"=>"13", "terms"=>"99", "fields"=>{"account"=>"+79050274414"}, "sum"=>{"amount"=>30, "currency"=>"643"}, "transaction"=>{"id"=>"13774661349", "state"=>{"code"=>"Accepted"}}, "source"=>"account_643"}
+        # {"id"=>"13", "terms"=>"99", "fields"=>{"account"=>"+79050274414"},
+        # "sum"=>{"amount"=>30, "currency"=>"643"}, "transaction"=>{"id"=>"13774661349",
+        # "state"=>{"code"=>"Accepted"}}, "source"=>"account_643"}
         result
       elsif response.code.to_s == '500'
         logger.error "#{phone}: Response code is 500, body: #{response.body}"
@@ -127,7 +134,10 @@ class PaymentServices::QIWI
         logger.error "#{phone}: Unknown reponse content_type. code: #{response.code}"
         logger.error "#{phone}: Unknown reponse content_type. content_type: '#{response.content_type}'"
         logger.error "#{phone}: Unknown reponse content_type. body: #{response.body.to_s.force_encoding('utf-8')}"
-        raise InternalError, "#{phone}: Unknown response: code=#{response.code}, content_type='#{response.content_type}', body: #{response.body.to_s.force_encoding('utf-8')}"
+        raise InternalError,
+              "#{phone}: Unknown response: code=#{response.code}, \
+            content_type='#{response.content_type}', \
+            body: #{response.body.to_s.force_encoding('utf-8')}"
       end
     end
   end

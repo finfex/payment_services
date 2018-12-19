@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 require_relative 'client'
 
 class PaymentServices::RBK
@@ -11,7 +15,10 @@ class PaymentServices::RBK
     monetize :amount_in_cents, as: :amount, with_currency: :rub
     validates :amount_in_cents, :rbk_id, :rbk_invoice_id, :state, presence: true
 
-    belongs_to :invoice, class_name: 'PaymentServices::RBK::Invoice', foreign_key: :rbk_invoice_id, primary_key: :rbk_invoice_id
+    belongs_to :invoice,
+               class_name: 'PaymentServices::RBK::Invoice',
+               foreign_key: :rbk_invoice_id,
+               primary_key: :rbk_invoice_id
 
     workflow_column :state
     workflow do
@@ -33,16 +40,14 @@ class PaymentServices::RBK
     end
 
     def self.rbk_state_to_state(rbk_state)
-      def convert_rbk_state(rbk_state)
-        if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
-          :success
-        elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
-          :fail
-        elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
-          :pending
-        else
-          raise("Такого статуса не существует: #{rbk_state}")
-        end
+      if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
+        :success
+      elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
+        :fail
+      elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
+        :pending
+      else
+        raise("Такого статуса не существует: #{rbk_state}")
       end
     end
   end

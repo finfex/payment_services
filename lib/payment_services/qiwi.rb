@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 module PaymentServices
   class QIWI < Base
     autoload :PayoutAdapter, 'payment_services/qiwi/payout_adapter'

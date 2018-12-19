@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 class PaymentServices::PerfectMoney
   class Invoice < ApplicationRecord
     include Workflow
@@ -23,7 +27,7 @@ class PaymentServices::PerfectMoney
       state :cancelled
     end
 
-    def pay(payload: )
+    def pay(payload:)
       update(payload: payload)
     end
 

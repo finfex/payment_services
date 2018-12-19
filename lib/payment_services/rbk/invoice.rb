@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 require_relative 'payment'
 
 class PaymentServices::RBK
@@ -41,7 +45,7 @@ class PaymentServices::RBK
         amount_in_cents: response['amount'],
         rbk_id: response['id'],
         state: PaymentServices::RBK::Payment.rbk_state_to_state(response['status']),
-        payload: response,
+        payload: response
       )
     end
   end

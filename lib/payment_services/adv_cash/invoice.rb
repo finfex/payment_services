@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 class PaymentServices::AdvCash
   class Invoice < ApplicationRecord
     include Workflow
@@ -25,7 +29,7 @@ class PaymentServices::AdvCash
       state :cancelled
     end
 
-    def pay(payload: )
+    def pay(payload:)
       update(payload: payload)
     end
 
@@ -34,7 +38,7 @@ class PaymentServices::AdvCash
     end
 
     def formatted_amount
-      sprintf('%.2f', amount.to_f)
+      format('%.2f', amount.to_f)
     end
   end
 end

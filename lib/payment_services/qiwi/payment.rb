@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 # Выдержка из внешнего журнала транзакций
 #
 # TODO А чем она отличается от выдержек из других ПС?
@@ -17,8 +21,8 @@ class PaymentServices::QIWI
     scope :ordered, -> { order 'id desc, date desc' }
     monetize :total_cents, as: :total
 
-    enum status: %i(UNKNOWN WAITING SUCCESS ERROR)
-    enumerize :direction_type, in: %w(IN OUT), predicates: { prefix: true }
+    enum status: %i[UNKNOWN WAITING SUCCESS ERROR]
+    enumerize :direction_type, in: %w[IN OUT], predicates: { prefix: true }
 
     def success_in?
       SUCCESS? && direction_type_IN?

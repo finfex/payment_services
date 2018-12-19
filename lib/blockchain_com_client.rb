@@ -1,15 +1,22 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 class BlockchainComClient
   Blockchain::TIMEOUT_SECONDS = 5
   include AutoLogger
-  # NOTE апи blockchain.com следит только за 20ю неиспользованными адресами. При простом режиме работе, если запросить 21й адрес
-  # то апи выдаст ошибку. Параметр gap_limit частично убирает это ограничение, апи будет генерировать адреса без ошибок до значения gap_limit,
-  # но следить по прежнему только за 20ю. Т.е. если поставтиь gap_limit=100, будет сгенерировано 100 адресов, но сервис будет оповещать
+  # NOTE апи blockchain.com следит только за 20ю неиспользованными адресами.
+  # При простом режиме работе, если запросить 21й адрес
+  # то апи выдаст ошибку. Параметр gap_limit частично убирает это ограничение,
+  # апи будет генерировать адреса без ошибок до значения gap_limit,
+  # но следить по прежнему только за 20ю. Т.е. если поставтиь gap_limit=100,
+  # будет сгенерировано 100 адресов, но сервис будет оповещать
   # наш сервер только о приходе денег на первые 20.
   WATCH_GAP_LIMIT = 20
   DEFAULT_GAP_LIMIT = 1000
 
   def generate_address(callback_token)
-    logger.info "blockchain.com start address generation"
+    logger.info 'blockchain.com start address generation'
     api_root = Rails.application.routes.url_helpers.public_public_api_root_url
     response = client.receive(
       Secrets.blockchain_xpub,

@@ -1,10 +1,14 @@
+# frozen_string_literal: true
+
+# Copyright (c) 2018 FINFEX https://github.com/finfex
+
 require_relative 'invoice'
 
 class PaymentServices::Payeer
   class Invoicer < ::PaymentServices::Base::Invoicer
-    PAYEER_URL  = 'https://payeer.com/merchant/'
+    PAYEER_URL = 'https://payeer.com/merchant/'
 
-    def create_invoice money
+    def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 
@@ -12,7 +16,7 @@ class PaymentServices::Payeer
       invoice = Invoice.find_by!(order_public_id: order.public_id)
 
       payment_data = {
-        amount: sprintf('%.2f',invoice.amount.to_f),
+        amount: format('%.2f', invoice.amount.to_f),
         currency: invoice.amount.currency_as_string,
         description: Base64.strict_encode64(I18n.t('payment_systems.default_product', order_id: order.public_id))
       }
