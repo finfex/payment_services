@@ -42,13 +42,14 @@ class PaymentServices::RBK
       refresh_token! unless access_token_valid?
 
       uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
-      uri.query = {
+      query_hash = {
         customerID: rbk_id,
         customerAccessToken: access_token,
-        name: I18n.t('payment_systems.default_company'),
+        name: I18n.t('payment_systems.fill_details'),
         description: I18n.t('payment_systems.bind_card_product')
-      }.to_query
-
+      }
+      # NOTE не используется дефолтный to_query, т.к. он кодирует пробелы в +, а нам нужно %20
+      uri.query = query_hash.collect { |key, value| "#{key}=#{URI.encode(value)}" }.sort * '&'
       uri
     end
 
