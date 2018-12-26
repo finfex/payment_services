@@ -9,7 +9,7 @@ class PaymentServices::RBK
     API_V1 = 'https://api.rbk.money/v1'
     INVOICES_URL = "#{API_V1}/processing/invoices"
     CUSTOMERS_URL = "#{API_V1}/processing/customers"
-    MAX_LIVE = 18.minutes
+    MAX_INVOICE_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
     PAYMENT_STATES = %w[pending processed captured cancelled refunded failed].freeze
@@ -20,7 +20,7 @@ class PaymentServices::RBK
     def create_invoice(order_id:, amount:)
       request_body = {
         shopID: SHOP,
-        dueDate: Time.zone.now + MAX_LIVE,
+        dueDate: Time.zone.now + MAX_INVOICE_LIVE,
         amount: amount,
         currency: DEFAULT_CURRENCY,
         product: I18n.t('payment_systems.default_product', order_id: order_id),
