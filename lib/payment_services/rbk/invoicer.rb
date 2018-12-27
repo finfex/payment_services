@@ -21,7 +21,7 @@ class PaymentServices::RBK
     def pay_invoice_url
       uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
       invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
-      uri.query = {
+      query_hash = {
         invoiceID: invoice.rbk_invoice_id,
         invoiceAccessToken: invoice.access_payment_token,
         name: I18n.t('payment_systems.default_company', order_id: order.public_id),
@@ -32,7 +32,12 @@ class PaymentServices::RBK
         samsungPay: false,
         amount: invoice.amount_in_cents,
         locale: 'auto'
-      }.to_query
+      }
+
+      # NOTE не используется дефолтный to_query, т.к. он кодирует пробелы в +, а нам нужно %20
+      uri.query = query_hash
+                  .collect { |key, value| "#{key}=#{URI.encode(value)}" } # rubocop:disable Lint/UriEscapeUnescape
+                  .sort * '&'
 
       uri
     end
