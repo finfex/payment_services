@@ -36,7 +36,7 @@ class PaymentServices::RBK
 
       # NOTE не используется дефолтный to_query, т.к. он кодирует пробелы в +, а нам нужно %20
       uri.query = query_hash
-                  .collect { |key, value| "#{key}=#{URI.encode(value.to_s)}" } # rubocop:disable Lint/UriEscapeUnescape
+                  .collect { |key, value| "#{key}=#{ERB::Util.url_encode(value.to_s)}" }
                   .sort * '&'
 
       uri
