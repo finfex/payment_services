@@ -21,7 +21,7 @@ class PaymentServices::PerfectMoney
           PAYEE_NAME: RestageUrlHelper::ORIGINAL_HOME_URL,
           PAYMENT_ID: order.public_id,
           PAYMENT_AMOUNT: format('%.2f', invoice.amount.to_f),
-          PAYMENT_UNITS: invoice.amount.currency_as_string,
+          PAYMENT_UNITS: invoice.amount.currency.to_s,
           STATUS_URL: "#{routes_helper.public_public_callbacks_api_root_url}/v1/perfect_money/receive_payment",
           PAYMENT_URL: routes_helper.public_payment_status_success_url(order_id: order.public_id),
           PAYMENT_URL_METHOD: 'GET',

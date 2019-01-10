@@ -21,7 +21,7 @@ class PaymentServices::AdvCash
         shop_name: order.income_wallet.merchant_id.presence ||
                    raise("Не установлено поле merchant_id у кошелька #{order.income_wallet.id}"),
         amount: invoice.formatted_amount,
-        currency: invoice.amount.currency_as_string,
+        currency: invoice.amount.currency.to_s,
         order_id: invoice.order_public_id
       }
 

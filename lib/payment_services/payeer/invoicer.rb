@@ -17,7 +17,7 @@ class PaymentServices::Payeer
 
       payment_data = {
         amount: format('%.2f', invoice.amount.to_f),
-        currency: invoice.amount.currency_as_string,
+        currency: invoice.amount.currency.to_s,
         description: Base64.strict_encode64(I18n.t('payment_systems.default_product', order_id: order.public_id))
       }
 
