@@ -12,7 +12,7 @@ class PaymentServices::AdvCash
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 
-    def invoice_form_data # rubocop:disable Metrics/MethodLength
+    def invoice_form_data # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       invoice = Invoice.find_by!(order_public_id: order.public_id)
 
       form_data = {
