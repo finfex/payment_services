@@ -3,13 +3,13 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'invoice'
-require_relative 'client'
+require_relative 'invoice_client'
 require_relative 'customer'
 
 class PaymentServices::RBK
   class Invoicer < ::PaymentServices::Base::Invoicer
     def create_invoice(money)
-      response = Client.new.create_invoice(order_id: order.public_id, amount: money.cents)
+      response = InvoiceClient.new.create_invoice(order_id: order.public_id, amount: money.cents)
       Invoice.create!(
         amount: money.to_f,
         order_public_id: order.public_id,
@@ -40,6 +40,10 @@ class PaymentServices::RBK
                   .sort * '&'
 
       uri
+    end
+
+    def able_to_refund?
+      true
     end
   end
 end

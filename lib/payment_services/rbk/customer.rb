@@ -2,7 +2,7 @@
 
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
-require_relative 'client'
+require_relative 'customer_client'
 require_relative 'payment_card'
 require 'jwt'
 
@@ -22,7 +22,7 @@ class PaymentServices::RBK
 
     # TODO: Выделить в команды
     def self.create_in_rbk!(user)
-      response = Client.new.create_customer(user)
+      response = CustomerClient.new.create_customer(user)
       access_token = response['customerAccessToken']['payload']
       create!(
         user_id: user.id,
@@ -56,15 +56,15 @@ class PaymentServices::RBK
     end
 
     def get_status
-      Client.new.customer_status(self)
+      CustomerClient.new.customer_status(self)
     end
 
     def rbk_events
-      Client.new.customer_events(self)
+      CustomerClient.new.customer_events(self)
     end
 
     def refresh_token!
-      response = Client.new.get_token(self)
+      response = CustomerClient.new.get_token(self)
       update!(
         access_token: response['payload'],
         access_token_expired_at: self.class.expiration_time_from(response['payload'])

@@ -26,6 +26,10 @@ module PaymentServices
       nil
     end
 
+    def able_to_refund?
+      false
+    end
+
     private
 
     delegate :id, to: :order, prefix: true
