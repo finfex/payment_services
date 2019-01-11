@@ -2,7 +2,7 @@
 
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
-require_relative 'client'
+require_relative 'payment_client'
 
 class PaymentServices::RBK
   class Payment < ApplicationRecord
@@ -31,24 +31,32 @@ class PaymentServices::RBK
         on_entry do
           invoice.pay!
         end
+        event :refund, transitions_to: :refunded
       end
       state :failed do
         on_entry do
           invoice.cancel!
         end
       end
+      state :refunded
     end
 
     def self.rbk_state_to_state(rbk_state)
-      if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
+      if PaymentClient::SUCCESS_STATES.include?(rbk_state)
         :success
-      elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
+      elsif PaymentClient::FAIL_STATES.include?(rbk_state)
         :fail
-      elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
+      elsif PaymentClient::PENDING_STATES.include?(rbk_state)
         :pending
+      elsif PaymentClient::REFUND_STATES.include?(rbk_state)
+        :fefunded
       else
         raise("Такого статуса не существует: #{rbk_state}")
       end
+    end
+
+    def refund!
+      PaymentClient.payment_refund!(rbk_id)
     end
   end
 end

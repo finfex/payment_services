@@ -3,6 +3,7 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'payment'
+require_relative 'invoice_client'
 
 class PaymentServices::RBK
   class Invoice < ApplicationRecord
@@ -30,6 +31,7 @@ class PaymentServices::RBK
       state :cancelled
     end
 
+    # FIXME: в приложение
     def order
       Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
     end
@@ -39,13 +41,25 @@ class PaymentServices::RBK
     end
 
     def make_payment(customer)
-      response = Client.new.pay_invoice_by_customer(customer: customer, invoice: self)
-      PaymentServices::RBK::Payment.create!(
+      response = InvoiceClient.new.pay_invoice_by_customer(customer: customer, invoice: self)
+      create_payment!(response)
+    end
+
+    def refund!
+      response = InvoiceClient.new.get_payments(self)
+      payments = response.each { |payment_json| create_payment!(payment_json) }
+      payments.each(&:refund!)
+    end
+
+    private
+
+    def create_payment!(payment_json)
+      Payment.create!(
+        rbk_id: payment_json['id'],
         rbk_invoice_id: rbk_invoice_id,
-        amount_in_cents: response['amount'],
-        rbk_id: response['id'],
-        state: PaymentServices::RBK::Payment.rbk_state_to_state(response['status']),
-        payload: response
+        amount_in_cents: payment_json['amount'],
+        state: Payment.rbk_state_to_state(payment_json['status']),
+        payload: payment_json
       )
     end
   end

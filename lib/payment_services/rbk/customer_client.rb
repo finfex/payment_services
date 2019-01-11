@@ -2,8 +2,12 @@
 
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
+require_relative 'client'
+
 class PaymentServices::RBK
   class CustomerClient < PaymentServices::RBK::Client
+    URL = "#{API_V1}/processing/customers"
+
     def create_customer(user)
       request_body = {
         shopID: SHOP,

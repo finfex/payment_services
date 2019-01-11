@@ -6,6 +6,8 @@ require_relative 'client'
 
 class PaymentServices::RBK
   class InvoiceClient < PaymentServices::RBK::Client
+    URL = "#{API_V1}/processing/invoices"
+
     def create_invoice(order_id:, amount:)
       request_body = {
         shopID: SHOP,
@@ -16,7 +18,7 @@ class PaymentServices::RBK
         metadata: { order_public_id: order_id }
       }
       safely_parse http_request(
-        url: INVOICES_URL,
+        url: URL,
         method: :POST,
         body: request_body
       )
@@ -31,9 +33,17 @@ class PaymentServices::RBK
         }
       }
       safely_parse http_request(
-        url: "#{INVOICES_URL}/#{invoice.rbk_invoice_id}/payments",
+        url: "#{URL}/#{invoice.rbk_invoice_id}/payments",
         method: :POST,
         body: request_body,
+        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+      )
+    end
+
+    def get_payments(invoice)
+      safely_parse http_request(
+        url: "#{URL}/#{invoice.rbk_invoice_id}/payments",
+        method: :GET,
         headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
       )
     end
