@@ -22,10 +22,14 @@ class PaymentServices::Payeer
 
       state :paid do
         on_entry do
-          order.auto_confirm!(income_amount: amount)
+          preliminary_order&.auto_confirm!(income_amount: amount)
         end
       end
       state :cancelled
+    end
+
+    def can_be_confirmed?(income_money:)
+      pending? && amount == income_money
     end
 
     def pay(payload:)
@@ -33,7 +37,13 @@ class PaymentServices::Payeer
     end
 
     def order
-      Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
+      Order.find_by(public_id: order_public_id)
+    end
+
+    private
+
+    def preliminary_order
+      PreliminaryOrder.find_by(public_id: order_public_id)
     end
   end
 end
