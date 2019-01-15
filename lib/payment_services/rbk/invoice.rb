@@ -42,18 +42,21 @@ class PaymentServices::RBK
 
     def make_payment(customer)
       response = InvoiceClient.new.pay_invoice_by_customer(customer: customer, invoice: self)
-      create_payment!(response)
+      find_or_create_payment!(response)
     end
 
     def refund!
       response = InvoiceClient.new.get_payments(self)
-      payments = response.each { |payment_json| create_payment!(payment_json) }
+      payments = response.map { |payment_json| find_or_create_payment!(payment_json) }
       payments.each(&:refund!)
     end
 
     private
 
-    def create_payment!(payment_json)
+    def find_or_create_payment!(payment_json)
+      payment = Payment.find_by(rbk_id: payment_json['id'])
+      return payment if payment.present?
+
       Payment.create!(
         rbk_id: payment_json['id'],
         rbk_invoice_id: rbk_invoice_id,

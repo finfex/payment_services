@@ -3,7 +3,7 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 class PaymentServices::RBK
-  class Client # rubocop:disable Metrics/ClassLength
+  class Client
     include AutoLogger
     TIMEOUT = 1
     API_V1 = 'https://api.rbk.money/v1'
