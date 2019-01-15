@@ -57,6 +57,8 @@ class PaymentServices::RBK
 
     def refund!
       response = PaymentClient.new.refund(self)
+      update!(payload: response)
+      refund!
     end
   end
 end

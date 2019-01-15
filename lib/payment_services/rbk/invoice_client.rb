@@ -40,6 +40,14 @@ class PaymentServices::RBK
       )
     end
 
+    def get_info(invoice)
+      safely_parse http_request(
+        url: "#{URL}/#{invoice.rbk_invoice_id}",
+        method: :GET,
+        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+      )
+    end
+
     def get_payments(invoice)
       safely_parse http_request(
         url: "#{URL}/#{invoice.rbk_invoice_id}/payments",

@@ -14,7 +14,7 @@ class PaymentServices::RBK
 
     def refund(payment)
       safely_parse http_request(
-        url: "/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}/refunds",
+        url: "#{API_V1}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}/refunds",
         method: :POST,
         headers: { Authorization: "Bearer #{payment.invoice.access_payment_token}" }
       )

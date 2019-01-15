@@ -45,6 +45,17 @@ class PaymentServices::RBK
       find_or_create_payment!(response)
     end
 
+    def refresh_info!
+      response = InvoiceClient.new.get_info(self)
+      update!(payload: response)
+      return unless pending?
+
+      case response['status']
+      when 'paid' then  pay!
+      when 'cancelled' then cancel!
+      end
+    end
+
     def refund!
       response = InvoiceClient.new.get_payments(self)
       payments = response.map { |payment_json| find_or_create_payment!(payment_json) }
