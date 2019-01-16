@@ -14,7 +14,8 @@ class PaymentServices::RBK
         amount: money.to_f,
         order_public_id: order.public_id,
         rbk_invoice_id: response['invoice']['id'],
-        payload: response
+        payload: response,
+        access_token: response['invoiceAccessToken']['payload']
       )
     end
 
@@ -23,7 +24,7 @@ class PaymentServices::RBK
       invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       query_hash = {
         invoiceID: invoice.rbk_invoice_id,
-        invoiceAccessToken: invoice.access_payment_token,
+        invoiceAccessToken: invoice.access_token,
         name: I18n.t('payment_systems.default_company', order_id: order.public_id),
         description: I18n.t('payment_systems.default_product', order_id: order.public_id),
         bankCard: true,

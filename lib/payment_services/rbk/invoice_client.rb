@@ -36,7 +36,7 @@ class PaymentServices::RBK
         url: "#{URL}/#{invoice.rbk_invoice_id}/payments",
         method: :POST,
         body: request_body,
-        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+        headers: { Authorization: "Bearer #{invoice.access_token}" }
       )
     end
 
@@ -44,7 +44,7 @@ class PaymentServices::RBK
       safely_parse http_request(
         url: "#{URL}/#{invoice.rbk_invoice_id}",
         method: :GET,
-        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+        headers: { Authorization: "Bearer #{invoice.access_token}" }
       )
     end
 
@@ -52,7 +52,7 @@ class PaymentServices::RBK
       safely_parse http_request(
         url: "#{URL}/#{invoice.rbk_invoice_id}/payments",
         method: :GET,
-        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
+        headers: { Authorization: "Bearer #{invoice.access_token}" }
       )
     end
   end

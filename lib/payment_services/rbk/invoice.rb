@@ -12,6 +12,8 @@ class PaymentServices::RBK
 
     scope :ordered, -> { order(id: :desc) }
 
+    has_many :payments, class_name: 'PaymentServices::RBK::Payment', primary_key: :rbk_invoice_id, foreign_key: :rbk_id
+
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
     validates :amount_in_cents, :order_public_id, :state, presence: true
@@ -36,10 +38,6 @@ class PaymentServices::RBK
       Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
     end
 
-    def access_payment_token
-      payload['invoiceAccessToken']['payload']
-    end
-
     def make_payment(customer)
       response = InvoiceClient.new.pay_invoice_by_customer(customer: customer, invoice: self)
       find_or_create_payment!(response)
@@ -57,9 +55,12 @@ class PaymentServices::RBK
     end
 
     def refund!
-      response = InvoiceClient.new.get_payments(self)
-      payments = response.map { |payment_json| find_or_create_payment!(payment_json) }
       payments.each(&:refund!)
+    end
+
+    def fetch_payments!
+      response = InvoiceClient.new.get_payments(self)
+      response.map { |payment_json| find_or_create_payment!(payment_json) }
     end
 
     private
