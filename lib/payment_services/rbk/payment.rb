@@ -57,6 +57,7 @@ class PaymentServices::RBK
 
     def refund!
       response = PaymentClient.new.refund(self)
+      #  UPDATE `rbk_money_payments` SET `payload` = '{\"description\":\"\",\"errorType\":\"not_found\",\"name\":\"RefundParams\"}' WHERE `rbk_money_payments`.`id` = 2
       update!(payload: response)
       refund!
     end

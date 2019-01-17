@@ -12,7 +12,7 @@ class PaymentServices::RBK
 
     scope :ordered, -> { order(id: :desc) }
 
-    has_many :payments, class_name: 'PaymentServices::RBK::Payment', primary_key: :rbk_invoice_id, foreign_key: :rbk_id
+    has_many :payments, class_name: 'PaymentServices::RBK::Payment', primary_key: :rbk_invoice_id, foreign_key: :rbk_invoice_id
 
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
@@ -66,7 +66,7 @@ class PaymentServices::RBK
     private
 
     def find_or_create_payment!(payment_json)
-      payment = Payment.find_by(rbk_id: payment_json['id'])
+      payment = Payment.find_by(rbk_invoice_id: rbk_invoice_id, rbk_id: payment_json['id'])
       return payment if payment.present?
 
       Payment.create!(
