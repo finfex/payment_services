@@ -61,6 +61,7 @@ class PaymentServices::RBK
     end
 
     def make_refund!
+      fetch_payments! if payments.empty?
       payments.each(&:make_refund!)
     end
 
@@ -78,6 +79,7 @@ class PaymentServices::RBK
       Payment.create!(
         rbk_id: payment_json['id'],
         rbk_invoice_id: rbk_invoice_id,
+        order_public_id: order_public_id,
         amount_in_cents: payment_json['amount'],
         state: Payment.rbk_state_to_state(payment_json['status']),
         payload: payment_json

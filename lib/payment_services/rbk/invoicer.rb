@@ -21,7 +21,6 @@ class PaymentServices::RBK
 
     def pay_invoice_url
       uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
-      invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       query_hash = {
         invoiceID: invoice.rbk_invoice_id,
         invoiceAccessToken: invoice.access_token,
@@ -41,6 +40,19 @@ class PaymentServices::RBK
                   .sort * '&'
 
       uri
+    end
+
+    def make_refund!
+      invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
+      invoice.make_refund!
+    end
+
+    def payments
+      PaymentServices::RBK::Payment.where(order_public_id: order.public_id)
+    end
+
+    def invoice
+      @invoice ||= PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
     end
 
     def able_to_refund?

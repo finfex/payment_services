@@ -18,5 +18,19 @@ class PaymentServices::RBK
         method: :POST
       )
     end
+
+    def info(payment)
+      safely_parse http_request(
+        url: "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}",
+        method: :GET
+      )
+    end
+
+    def refunds(payment)
+      safely_parse http_request(
+        url: "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}/refunds",
+        method: :GET
+      )
+    end
   end
 end

@@ -62,5 +62,20 @@ class PaymentServices::RBK
       update!(refund_payload: response)
       refund!
     end
+
+    def refresh_info!
+      response = PaymentClient.new.info(self)
+      update!(
+        state: self.class.rbk_state_to_state(response['status']),
+        payload: response
+      )
+    end
+
+    def fetch_refunds!
+      response = PaymentClient.new.refunds(self)
+      # FIXME: обрабатывать данные всегда как массив или всегда как хеш
+      response = response.first if response.is_a?(Array)
+      update!(refund_payload: response)
+    end
   end
 end
