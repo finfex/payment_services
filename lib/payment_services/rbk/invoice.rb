@@ -15,7 +15,8 @@ class PaymentServices::RBK
     has_many :payments,
              class_name: 'PaymentServices::RBK::Payment',
              primary_key: :rbk_invoice_id,
-             foreign_key: :rbk_invoice_id
+             foreign_key: :rbk_invoice_id,
+             dependent: :destroy
 
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
@@ -30,10 +31,12 @@ class PaymentServices::RBK
 
       state :paid do
         on_entry do
+          fetch_payments!
           order.auto_confirm!(income_amount: amount)
         end
       end
       state :cancelled
+      state :refunded
     end
 
     # FIXME: в приложение
@@ -57,7 +60,7 @@ class PaymentServices::RBK
       end
     end
 
-    def refund!
+    def make_refund!
       payments.each(&:make_refund!)
     end
 

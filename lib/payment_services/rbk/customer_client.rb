@@ -6,7 +6,7 @@ require_relative 'client'
 
 class PaymentServices::RBK
   class CustomerClient < PaymentServices::RBK::Client
-    URL = "#{API_V1}/processing/customers"
+    URL = "#{API_V2}/processing/customers"
 
     def create_customer(user)
       request_body = {
