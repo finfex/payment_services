@@ -19,12 +19,14 @@ class PaymentServices::RBK
                class_name: 'PaymentServices::RBK::Invoice',
                foreign_key: :rbk_invoice_id,
                primary_key: :rbk_invoice_id
+    delegate :access_token, to: :invoice
 
     workflow_column :state
     workflow do
       state :pending do
         event :success, transitions_to: :succeed
         event :fail, transitions_to: :failed
+        event :refund, transitions_to: :refunded
       end
 
       state :succeed do
@@ -55,9 +57,8 @@ class PaymentServices::RBK
       end
     end
 
-    def refund!
+    def make_refund!
       response = PaymentClient.new.refund(self)
-      #  UPDATE `rbk_money_payments` SET `payload` = '{\"description\":\"\",\"errorType\":\"not_found\",\"name\":\"RefundParams\"}' WHERE `rbk_money_payments`.`id` = 2
       update!(payload: response)
       refund!
     end

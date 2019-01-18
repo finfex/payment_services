@@ -55,7 +55,7 @@ class PaymentServices::RBK
       uri
     end
 
-    def get_status
+    def rbk_status
       CustomerClient.new.customer_status(self)
     end
 

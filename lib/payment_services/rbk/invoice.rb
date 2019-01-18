@@ -12,7 +12,10 @@ class PaymentServices::RBK
 
     scope :ordered, -> { order(id: :desc) }
 
-    has_many :payments, class_name: 'PaymentServices::RBK::Payment', primary_key: :rbk_invoice_id, foreign_key: :rbk_invoice_id
+    has_many :payments,
+             class_name: 'PaymentServices::RBK::Payment',
+             primary_key: :rbk_invoice_id,
+             foreign_key: :rbk_invoice_id
 
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
@@ -49,13 +52,13 @@ class PaymentServices::RBK
       return unless pending?
 
       case response['status']
-      when 'paid' then  pay!
+      when 'paid' then pay!
       when 'cancelled' then cancel!
       end
     end
 
     def refund!
-      payments.each(&:refund!)
+      payments.each(&:make_refund!)
     end
 
     def fetch_payments!
