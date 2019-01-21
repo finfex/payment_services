@@ -18,7 +18,7 @@ class PaymentServices::RBK
         metadata: { user_id: user.id }
       }
       safely_parse http_request(
-        url: CUSTOMERS_URL,
+        url: URL,
         method: :POST,
         body: request_body
       )
@@ -26,28 +26,28 @@ class PaymentServices::RBK
 
     def customer_status(customer)
       safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}",
+        url: "#{URL}/#{customer.rbk_id}",
         method: :GET
       )
     end
 
     def customer_events(customer)
       safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/events?limit=100",
+        url: "#{URL}/#{customer.rbk_id}/events?limit=100",
         method: :GET
       )
     end
 
     def customer_bindings(customer)
       safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/bindings",
+        url: "#{URL}/#{customer.rbk_id}/bindings",
         method: :GET
       )
     end
 
     def get_token(customer)
       safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/access-tokens",
+        url: "#{URL}/#{customer.rbk_id}/access-tokens",
         method: :POST
       )
     end

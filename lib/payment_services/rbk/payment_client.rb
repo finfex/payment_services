@@ -14,23 +14,29 @@ class PaymentServices::RBK
 
     def refund(payment)
       safely_parse http_request(
-        url: "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}/refunds",
+        url: "#{url(payment)}/refunds",
         method: :POST
       )
     end
 
     def info(payment)
       safely_parse http_request(
-        url: "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}",
+        url: url(payment),
         method: :GET
       )
     end
 
     def refunds(payment)
       safely_parse http_request(
-        url: "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}/refunds",
+        url: "#{url(payment)}/refunds",
         method: :GET
       )
+    end
+
+    private
+
+    def url(payment)
+      "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}"
     end
   end
 end
