@@ -14,12 +14,11 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Max: 25
 
-# Offense count: 3
+# Offense count: 2
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/payment_services/qiwi/client.rb'
     - 'lib/payment_services/qiwi/importer.rb'
-    - 'lib/payment_services/rbk/customer.rb'
 
 # Offense count: 40
 Style/Documentation:

@@ -3,95 +3,13 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 class PaymentServices::RBK
-  class Client # rubocop:disable Metrics/ClassLength
+  class Client
     include AutoLogger
     TIMEOUT = 1
-    API_V1 = 'https://api.rbk.money/v1'
-    INVOICES_URL = "#{API_V1}/processing/invoices"
-    CUSTOMERS_URL = "#{API_V1}/processing/customers"
+    API_V2 = 'https://api.rbk.money/v2'
     MAX_INVOICE_LIVE = 18.minutes
     SHOP = 'TEST'
     DEFAULT_CURRENCY = 'RUB'
-    PAYMENT_STATES = %w[pending processed captured cancelled refunded failed].freeze
-    PAYMENT_SUCCESS_STATES = %w[processed captured].freeze
-    PAYMENT_FAIL_STATES = %w[cancelled refunded failed].freeze
-    PAYMENT_PENDING_STATES = %w[pending].freeze
-
-    def create_invoice(order_id:, amount:)
-      request_body = {
-        shopID: SHOP,
-        dueDate: Time.zone.now + MAX_INVOICE_LIVE,
-        amount: amount,
-        currency: DEFAULT_CURRENCY,
-        product: I18n.t('payment_systems.default_product', order_id: order_id),
-        metadata: { order_public_id: order_id }
-      }
-      safely_parse http_request(
-        url: INVOICES_URL,
-        method: :POST,
-        body: request_body
-      )
-    end
-
-    def create_customer(user)
-      request_body = {
-        shopID: SHOP,
-        contactInfo: {
-          email: user.email,
-          phone: user.phone
-        },
-        metadata: { user_id: user.id }
-      }
-      safely_parse http_request(
-        url: CUSTOMERS_URL,
-        method: :POST,
-        body: request_body
-      )
-    end
-
-    def pay_invoice_by_customer(invoice:, customer:)
-      request_body = {
-        flow: { type: 'PaymentFlowInstant' },
-        payer: {
-          payerType: 'CustomerPayer',
-          customerID: customer.rbk_id
-        }
-      }
-      safely_parse http_request(
-        url: "#{INVOICES_URL}/#{invoice.rbk_invoice_id}/payments",
-        method: :POST,
-        body: request_body,
-        headers: { Authorization: "Bearer #{invoice.access_payment_token}" }
-      )
-    end
-
-    def customer_status(customer)
-      safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}",
-        method: :GET
-      )
-    end
-
-    def customer_events(customer)
-      safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/events?limit=100",
-        method: :GET
-      )
-    end
-
-    def customer_bindings(customer)
-      safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/bindings",
-        method: :GET
-      )
-    end
-
-    def get_token(customer)
-      safely_parse http_request(
-        url: "#{CUSTOMERS_URL}/#{customer.rbk_id}/access-tokens",
-        method: :POST
-      )
-    end
 
     private
 
@@ -111,7 +29,7 @@ class PaymentServices::RBK
                 else
                   raise "Запрос #{method} не поддерживается!"
                 end
-      request.body = body.to_json if body
+      request.body = (body.present? ? body : {}).to_json
       request
     end
 

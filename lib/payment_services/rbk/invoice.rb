@@ -3,6 +3,7 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'payment'
+require_relative 'invoice_client'
 
 class PaymentServices::RBK
   class Invoice < ApplicationRecord
@@ -10,6 +11,12 @@ class PaymentServices::RBK
     self.table_name = 'rbk_money_invoices'
 
     scope :ordered, -> { order(id: :desc) }
+
+    has_many :payments,
+             class_name: 'PaymentServices::RBK::Payment',
+             primary_key: :rbk_invoice_id,
+             foreign_key: :rbk_invoice_id,
+             dependent: :destroy
 
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
@@ -24,28 +31,58 @@ class PaymentServices::RBK
 
       state :paid do
         on_entry do
+          fetch_payments!
           order.auto_confirm!(income_amount: amount)
         end
       end
       state :cancelled
+      state :refunded
     end
 
+    # FIXME: в приложение
     def order
       Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
     end
 
-    def access_payment_token
-      payload['invoiceAccessToken']['payload']
+    def make_payment(customer)
+      response = InvoiceClient.new.pay_invoice_by_customer(customer: customer, invoice: self)
+      find_or_create_payment!(response)
     end
 
-    def make_payment(customer)
-      response = Client.new.pay_invoice_by_customer(customer: customer, invoice: self)
-      PaymentServices::RBK::Payment.create!(
+    def refresh_info!
+      response = InvoiceClient.new.get_info(self)
+      update!(payload: response)
+      return unless pending?
+
+      case response['status']
+      when 'paid' then pay!
+      when 'cancelled' then cancel!
+      end
+    end
+
+    def make_refund!
+      fetch_payments! if payments.empty?
+      payments.each(&:make_refund!)
+    end
+
+    def fetch_payments!
+      response = InvoiceClient.new.get_payments(self)
+      response.map { |payment_json| find_or_create_payment!(payment_json) }
+    end
+
+    private
+
+    def find_or_create_payment!(payment_json)
+      payment = Payment.find_by(rbk_invoice_id: rbk_invoice_id, rbk_id: payment_json['id'])
+      return payment if payment.present?
+
+      Payment.create!(
+        rbk_id: payment_json['id'],
         rbk_invoice_id: rbk_invoice_id,
-        amount_in_cents: response['amount'],
-        rbk_id: response['id'],
-        state: PaymentServices::RBK::Payment.rbk_state_to_state(response['status']),
-        payload: response
+        order_public_id: order_public_id,
+        amount_in_cents: payment_json['amount'],
+        state: Payment.rbk_state_to_state(payment_json['status']),
+        payload: payment_json
       )
     end
   end

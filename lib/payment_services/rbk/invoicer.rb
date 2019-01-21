@@ -3,27 +3,27 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'invoice'
-require_relative 'client'
+require_relative 'invoice_client'
 require_relative 'customer'
 
 class PaymentServices::RBK
   class Invoicer < ::PaymentServices::Base::Invoicer
     def create_invoice(money)
-      response = Client.new.create_invoice(order_id: order.public_id, amount: money.cents)
+      response = InvoiceClient.new.create_invoice(order_id: order.public_id, amount: money.cents)
       Invoice.create!(
         amount: money.to_f,
         order_public_id: order.public_id,
         rbk_invoice_id: response['invoice']['id'],
-        payload: response
+        payload: response,
+        access_token: response['invoiceAccessToken']['payload']
       )
     end
 
     def pay_invoice_url
       uri = URI.parse(PaymentServices::RBK::CHECKOUT_URL)
-      invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
       query_hash = {
         invoiceID: invoice.rbk_invoice_id,
-        invoiceAccessToken: invoice.access_payment_token,
+        invoiceAccessToken: invoice.access_token,
         name: I18n.t('payment_systems.default_company', order_id: order.public_id),
         description: I18n.t('payment_systems.default_product', order_id: order.public_id),
         bankCard: true,
@@ -40,6 +40,23 @@ class PaymentServices::RBK
                   .sort * '&'
 
       uri
+    end
+
+    def make_refund!
+      invoice = PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
+      invoice.make_refund!
+    end
+
+    def payments
+      PaymentServices::RBK::Payment.where(order_public_id: order.public_id)
+    end
+
+    def invoice
+      @invoice ||= PaymentServices::RBK::Invoice.find_by!(order_public_id: order.public_id)
+    end
+
+    def able_to_refund?
+      true
     end
   end
 end

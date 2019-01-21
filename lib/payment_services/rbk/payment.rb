@@ -2,7 +2,7 @@
 
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
-require_relative 'client'
+require_relative 'payment_client'
 
 class PaymentServices::RBK
   class Payment < ApplicationRecord
@@ -19,36 +19,63 @@ class PaymentServices::RBK
                class_name: 'PaymentServices::RBK::Invoice',
                foreign_key: :rbk_invoice_id,
                primary_key: :rbk_invoice_id
+    delegate :access_token, to: :invoice
 
     workflow_column :state
     workflow do
       state :pending do
         event :success, transitions_to: :succeed
         event :fail, transitions_to: :failed
+        event :refund, transitions_to: :refunded
       end
 
       state :succeed do
         on_entry do
           invoice.pay!
         end
+        event :refund, transitions_to: :refunded
       end
       state :failed do
         on_entry do
           invoice.cancel!
         end
       end
+      state :refunded
     end
 
     def self.rbk_state_to_state(rbk_state)
-      if Client::PAYMENT_SUCCESS_STATES.include?(rbk_state)
+      if PaymentClient::SUCCESS_STATES.include?(rbk_state)
         :success
-      elsif Client::PAYMENT_FAIL_STATES.include?(rbk_state)
+      elsif PaymentClient::FAIL_STATES.include?(rbk_state)
         :fail
-      elsif Client::PAYMENT_PENDING_STATES.include?(rbk_state)
+      elsif PaymentClient::PENDING_STATES.include?(rbk_state)
         :pending
+      elsif PaymentClient::REFUND_STATES.include?(rbk_state)
+        :fefunded
       else
         raise("Такого статуса не существует: #{rbk_state}")
       end
+    end
+
+    def make_refund!
+      response = PaymentClient.new.refund(self)
+      update!(refund_payload: response)
+      refund!
+    end
+
+    def refresh_info!
+      response = PaymentClient.new.info(self)
+      update!(
+        state: self.class.rbk_state_to_state(response['status']),
+        payload: response
+      )
+    end
+
+    def fetch_refunds!
+      response = PaymentClient.new.refunds(self)
+      # FIXME: обрабатывать данные всегда как массив или всегда как хеш
+      response = response.first if response.is_a?(Array)
+      update!(refund_payload: response)
     end
   end
 end
