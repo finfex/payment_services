@@ -14,8 +14,7 @@ class PaymentServices::RBK
 
     has_many :payments,
              class_name: 'PaymentServices::RBK::Payment',
-             primary_key: :rbk_invoice_id,
-             foreign_key: :rbk_invoice_id,
+             foreign_key: :rbk_money_invoice_id,
              dependent: :destroy
 
     register_currency :rub
@@ -62,7 +61,7 @@ class PaymentServices::RBK
 
     def make_refund!
       fetch_payments! if payments.empty?
-      payments.each(&:make_refund!)
+      payments.map(&:make_refund!).join(' ')
     end
 
     def fetch_payments!
@@ -73,12 +72,12 @@ class PaymentServices::RBK
     private
 
     def find_or_create_payment!(payment_json)
-      payment = Payment.find_by(rbk_invoice_id: rbk_invoice_id, rbk_id: payment_json['id'])
+      payment = payments.find_by(rbk_id: payment_json['id'])
       return payment if payment.present?
 
       Payment.create!(
         rbk_id: payment_json['id'],
-        rbk_invoice_id: rbk_invoice_id,
+        invoice: self,
         order_public_id: order_public_id,
         amount_in_cents: payment_json['amount'],
         state: Payment.rbk_state_to_state(payment_json['status']),

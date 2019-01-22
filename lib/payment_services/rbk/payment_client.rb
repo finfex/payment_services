@@ -36,7 +36,7 @@ class PaymentServices::RBK
     private
 
     def url(payment)
-      "#{API_V2}/processing/invoices/#{payment.rbk_invoice_id}/payments/#{payment.rbk_id}"
+      "#{API_V2}/processing/invoices/#{payment.invoice.rbk_invoice_id}/payments/#{payment.rbk_id}"
     end
   end
 end

@@ -13,12 +13,11 @@ class PaymentServices::RBK
 
     register_currency :rub
     monetize :amount_in_cents, as: :amount, with_currency: :rub
-    validates :amount_in_cents, :rbk_id, :rbk_invoice_id, :state, presence: true
+    validates :amount_in_cents, :rbk_id, :state, presence: true
 
     belongs_to :invoice,
                class_name: 'PaymentServices::RBK::Invoice',
-               foreign_key: :rbk_invoice_id,
-               primary_key: :rbk_invoice_id
+               foreign_key: :rbk_money_invoice_id
     delegate :access_token, to: :invoice
 
     workflow_column :state
@@ -58,9 +57,9 @@ class PaymentServices::RBK
     end
 
     def make_refund!
-      response = PaymentClient.new.refund(self)
-      update!(refund_payload: response)
+      update!(refund_payload: PaymentClient.new.refund(self))
       refund!
+      refund_payload
     end
 
     def refresh_info!
