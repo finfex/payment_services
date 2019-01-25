@@ -57,13 +57,18 @@ class PaymentServices::RBK
     end
 
     def make_refund!
-      update!(refund_payload: PaymentClient.new.refund(self))
+      response = PaymentClient.new.refund(self)
+      return unless response.present?
+
+      update!(refund_payload: response)
       refund!
       refund_payload
     end
 
     def refresh_info!
       response = PaymentClient.new.info(self)
+      return unless response.present?
+
       update!(
         state: self.class.rbk_state_to_state(response['status']),
         payload: response
@@ -78,7 +83,7 @@ class PaymentServices::RBK
     end
 
     def payment_tool_info
-      payload.dig('payer', 'paymentToolDetails')
+      payload.dig('payer', 'paymentToolDetails', 'cardNumberMask')
     end
   end
 end
