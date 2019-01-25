@@ -30,6 +30,11 @@ module PaymentServices
       false
     end
 
+    def payments
+      # not implemented and nil by default
+      nil
+    end
+
     private
 
     delegate :id, to: :order, prefix: true

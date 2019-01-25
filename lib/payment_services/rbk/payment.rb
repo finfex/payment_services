@@ -76,5 +76,9 @@ class PaymentServices::RBK
       response = response.first if response.is_a?(Array)
       update!(refund_payload: response)
     end
+
+    def payment_tool_info
+      payload.dig('payer', 'paymentToolDetails')
+    end
   end
 end
