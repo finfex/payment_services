@@ -50,6 +50,8 @@ class PaymentServices::RBK
 
     def refresh_info!
       response = InvoiceClient.new.get_info(self)
+      return unless response.present?
+
       update!(payload: response)
       return unless pending?
 
