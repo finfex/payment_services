@@ -6,7 +6,8 @@ class PaymentServices::RBK
   class PayoutDestination < ApplicationRecord
     self.table_name = 'rbk_payment_cards'
 
-    def self.create_from_card_details(number:, name:, exp_date:, identity:)
+    def self.create_from_card_details
+      # def self.create_from_card_details(number:, name:, exp_date:, identity:)
       # запрос в токинайзер для получения токена по карте
       # запрос на создание напрвления выплаты (карты) для личность (identity)
       raise NotImplementedError
