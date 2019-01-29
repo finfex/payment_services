@@ -5,13 +5,15 @@
 require_relative 'identity_client'
 
 class PaymentServices::RBK
-  class Customer < ApplicationRecord
+  class Identity < ApplicationRecord
     self.table_name = 'rbk_identities'
 
-    def self.create_sample
-      # создание тестовой личность у РБК
-      # IdentityClient.new.create_sample_identity
-      raise NotImplementedError
+    def self.create_sample!
+      response = IdentityClient.new.create_sample_identity
+      create!(
+        rbk_id: response['id'],
+        payload: response
+      )
     end
   end
 end
