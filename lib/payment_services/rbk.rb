@@ -13,3 +13,4 @@ end
 require_relative 'rbk/identity'
 require_relative 'rbk/wallet'
 require_relative 'rbk/payout_destination'
+require_relative 'rbk/payout'

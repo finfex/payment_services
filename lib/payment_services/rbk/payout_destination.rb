@@ -48,5 +48,10 @@ class PaymentServices::RBK
 
       response
     end
+
+    def update_rbk_status!
+      response = PayoutDestinationClient.new.info(self)
+      update!(rbk_status: response['status'], payload: response) if response['status']
+    end
   end
 end

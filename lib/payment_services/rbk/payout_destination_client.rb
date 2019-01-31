@@ -37,5 +37,12 @@ class PaymentServices::RBK
         }
       )
     end
+
+    def info(payout_destination)
+      safely_parse http_request(
+        url: "#{URL}/#{payout_destination.rbk_id}",
+        method: :GET
+      )
+    end
   end
 end
