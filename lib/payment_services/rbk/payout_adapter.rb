@@ -7,10 +7,12 @@ require_relative 'client'
 #
 class PaymentServices::RBK
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
-
     # TODO: возможность передавть ID кошелька для списания
+    # rubocop:disable Lint/UnusedMethodArgument
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:)
+      # rubocop:enable Lint/UnusedMethodArgument
       raise 'Можно делать выплаты только в рублях' unless amount.currency == RUB
+
       identity = Identity.current
       payout_destination = PayoutDestination.find_or_create_from_card_details(
         number: payment_card_details['number'],
