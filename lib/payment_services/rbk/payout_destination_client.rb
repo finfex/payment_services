@@ -17,7 +17,7 @@ class PaymentServices::RBK
           type: 'BankCard',
           cardNumber: number,
           expDate: exp_date,
-          cardHolder: name
+          cardHolder: name.upcase
         }
       )
     end
