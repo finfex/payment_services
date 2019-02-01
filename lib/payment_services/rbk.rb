@@ -9,3 +9,8 @@ module PaymentServices
     register :invoicer, Invoicer
   end
 end
+# FIXME: не знаю как проще подгрузить все файлы из rbk
+require_relative 'rbk/identity'
+require_relative 'rbk/wallet'
+require_relative 'rbk/payout_destination'
+require_relative 'rbk/payout'
