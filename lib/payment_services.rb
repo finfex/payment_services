@@ -21,6 +21,8 @@ module PaymentServices
   autoload :RBK, 'payment_services/rbk'
   autoload :YandexMoney, 'payment_services/yandex_money'
 
+  UnauthorizedPayout = Class.new StandardError
+
   def self.configure
     @configuration = Configuration.new
     yield(configuration)

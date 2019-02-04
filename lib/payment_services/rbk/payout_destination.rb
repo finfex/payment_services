@@ -51,9 +51,13 @@ class PaymentServices::RBK
       response
     end
 
-    def update_rbk_status!
+    def refresh_info!
       response = PayoutDestinationClient.new.info(self)
       update!(rbk_status: response['status'], payload: response) if response['status']
+    end
+
+    def authorized?
+      rbk_status == 'Authorized'
     end
   end
 end

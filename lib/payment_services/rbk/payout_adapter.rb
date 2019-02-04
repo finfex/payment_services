@@ -21,6 +21,10 @@ class PaymentServices::RBK
         exp_date: payment_card_details['exp_date'],
         identity: identity
       )
+      payout_destination.refresh_info!
+      unless payout_destination.authorized?
+        raise PaymentServices::UnauthorizedPayout, "РБК на разрешает вывод по направлению ##{payout_destination.id}"
+      end
 
       Payout.create_from!(
         destinaion: payout_destination,
