@@ -26,11 +26,22 @@ class PaymentServices::RBK
       raise Error, "RBK payout error: #{response}" unless response['status']
 
       create!(
+        rbk_id: response['id'],
         rbk_payout_destination: destinaion,
         rbk_wallet: wallet,
         amount_cents: amount_cents,
         payload: response,
         rbk_status: response['status']
+      )
+    end
+
+    def refresh_info!
+      response = PayoutClient.new.info(self)
+      return unless response.present? && response['status'].present?
+
+      update!(
+        rbk_status: response['status'],
+        payload: response
       )
     end
   end

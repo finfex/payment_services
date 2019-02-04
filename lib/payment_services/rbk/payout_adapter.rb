@@ -12,6 +12,7 @@ class PaymentServices::RBK
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:)
       # rubocop:enable Lint/UnusedMethodArgument
       raise 'Можно делать выплаты только в рублях' unless amount.currency == RUB
+      raise 'Нет данных карты' unless payment_card_details.present?
 
       identity = Identity.current
       payout_destination = PayoutDestination.find_or_create_from_card_details(
