@@ -23,6 +23,7 @@ class PaymentServices::RBK
       )
       payout_destination.refresh_info!
       unless payout_destination.authorized?
+        # РБК не разрешает делать выплату по неаторизованному направлению
         raise PaymentServices::UnauthorizedPayout, "РБК на разрешает вывод по направлению ##{payout_destination.id}"
       end
 
