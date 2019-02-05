@@ -13,11 +13,15 @@ class PaymentServices::Base
 
     # amount - сумма выплаты (Money)
     # transaction_id - идентификатор транзакции (платежки) для записи в журнал на внешнем API
-    #
-    def make_payout!(amount:, transaction_id:, destination_account:)
+    def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:)
       raise unless amount.is_a? Money
 
-      make_payout amount: amount, transaction_id: transaction_id, destination_account: destination_account
+      make_payout(
+        amount: amount,
+        payment_card_details: payment_card_details,
+        transaction_id: transaction_id,
+        destination_account: destination_account
+      )
     end
 
     private
