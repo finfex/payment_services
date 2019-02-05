@@ -15,12 +15,20 @@ class PaymentServices::RBK
              class_name: 'PaymentServices::RBK::PayoutDestination',
              foreign_key: :rbk_identity_id
 
+    def self.current
+      find_by(current: true)
+    end
+
     def self.create_sample!
       response = IdentityClient.new.create_sample_identity
       create!(
         rbk_id: response['id'],
         payload: response
       )
+    end
+
+    def current_wallet
+      rbk_wallets.find_by(current: true)
     end
   end
 end

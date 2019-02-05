@@ -5,7 +5,7 @@
 class PaymentServices::RBK
   class Client
     include AutoLogger
-    TIMEOUT = 1
+    TIMEOUT = 10
     API_V2 = 'https://api.rbk.money/v2'
     MAX_INVOICE_LIVE = 18.minutes
     SHOP = 'TEST'

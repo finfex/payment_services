@@ -9,7 +9,7 @@ class PaymentServices::QIWI
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
     # TODO: заменить на before_ ?
     #
-    def make_payout!(amount:, destination_account:, transaction_id:)
+    def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:)
       raise 'Можно делать выплаты только в рублях' unless amount.currency == RUB
       raise 'Кошелек должен быть рублевый' unless wallet.currency == RUB
 
@@ -18,7 +18,10 @@ class PaymentServices::QIWI
 
     private
 
-    def make_payout(amount:, transaction_id:, destination_account:)
+    # rubocop:disable Lint/UnusedMethodArgument
+    def make_payout(amount:, payment_card_details:, transaction_id:, destination_account:)
+      # rubocop:enable Lint/UnusedMethodArgument
+
       client.create_payout(
         id: transaction_id,
         amount: amount.to_f,

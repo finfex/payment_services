@@ -14,7 +14,9 @@ class PaymentServices::RBK
     def self.find_or_create_from_card_details(number:, name:, exp_date:, identity:)
       tokenized_card = tokenize_card!(number: number, name: name, exp_date: exp_date)
 
-      payout_destination = identity.payout_destinations.find_by(payment_token: tokenized_card['token'])
+      payout_destination = identity.rbk_payout_destinations.find_by(
+        payment_token: tokenized_card['token']
+      )
       return payout_destination if payout_destination.present?
 
       create_destination!(identity: identity, tokenized_card: tokenized_card)
@@ -49,9 +51,13 @@ class PaymentServices::RBK
       response
     end
 
-    def update_rbk_status!
+    def refresh_info!
       response = PayoutDestinationClient.new.info(self)
       update!(rbk_status: response['status'], payload: response) if response['status']
+    end
+
+    def authorized?
+      rbk_status == 'Authorized'
     end
   end
 end
