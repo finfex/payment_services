@@ -41,7 +41,7 @@ class PaymentServices::QIWI
       end
     end
 
-    TIMEOUT = 1
+
     ROWS = 10 # max 50
     URL_LAST_PAYMENTS = 'https://edge.qiwi.com/payment-history/v2/persons/:phone/payments'
     URL_CREATE_PAYOUT = 'https://edge.qiwi.com/sinap/api/v2/terms/99/payments'
@@ -62,6 +62,10 @@ class PaymentServices::QIWI
     end
 
     private
+
+    def timeout
+      @timeout ||= PaymentServices.configuration.qiwi_timeout
+    end
 
     def submit_payout(id:, amount:, destination_account:)
       uri = URI.parse URL_CREATE_PAYOUT

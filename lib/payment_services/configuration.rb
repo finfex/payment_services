@@ -4,12 +4,10 @@
 
 module PaymentServices
   class Configuration
-    attr_accessor :registry
-    attr_accessor :preliminary_order_class # PreliminaryOrder
+    attr_accessor :qiwi_timeout
 
     def initialize
-      @registry = []
-      @preliminary_order_class = nil
+      @qiwi_client_timeout = 1
     end
   end
 end
