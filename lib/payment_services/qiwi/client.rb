@@ -41,7 +41,6 @@ class PaymentServices::QIWI
       end
     end
 
-
     ROWS = 10 # max 50
     URL_LAST_PAYMENTS = 'https://edge.qiwi.com/payment-history/v2/persons/:phone/payments'
     URL_CREATE_PAYOUT = 'https://edge.qiwi.com/sinap/api/v2/terms/99/payments'
