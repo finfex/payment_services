@@ -96,8 +96,8 @@ class PaymentServices::QIWI
         uri.port,
         use_ssl: true,
         verify_mode: OpenSSL::SSL::VERIFY_NONE,
-        open_timeout: TIMEOUT,
-        read_timeout: TIMEOUT
+        open_timeout: timeout,
+        read_timeout: timeout
       )
     end
 
