@@ -10,6 +10,8 @@ Status](https://travis-ci.org/finfex/payment_services.svg?branch=master)](https:
 * PerfectMoney
 * QIWI
 * RBK
+* AliKassa
+* YandexMoney
 
 ## Installation
 
