@@ -9,20 +9,18 @@ class PaymentServices::AnyMoney
     ANYMONEY_PAYMENT_FORM_URL = 'https://sci.any.money/invoice'
     ANYMONEY_CURRENCY = 'UAH'
     ANYMONEY_PAYMENT_CARD = 'visamc'
-    ANYMONEY_TIME_LIMIT = 18.minute.to_i
+    ANYMONEY_TIME_LIMIT = 1.hour.to_i
 
     def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 
     def invoice_form_data
-      description = I18n.t('payment_systems.personal_payment', order_id: order.public_id)
       form_params = {
         merchant: order.income_wallet.account,
         externalid: order.public_id,
-        amount: order.invoice_money.to_f,
+        amount: order.invoice_money.exchange_to(UAH).to_f,
         in_curr: ANYMONEY_CURRENCY,
-        desc: description,
         expiry: ANYMONEY_TIME_LIMIT,
         payway: ANYMONEY_PAYMENT_CARD,
         callback_url: order.income_payment_system.callback_url
