@@ -7,8 +7,8 @@ require_relative 'invoice'
 class PaymentServices::AnyMoney
   class Invoicer < ::PaymentServices::Base::Invoicer
     ANYMONEY_PAYMENT_FORM_URL = 'https://sci.any.money/invoice'
-    ANYMONEY_CURRENCY = 'UAH'
-    ANYMONEY_PAYMENT_CARD = 'visamc'
+    ANYMONEY_CURRENCY = 'RUB'
+    ANYMONEY_PAYWAY = 'qiwi'
     ANYMONEY_TIME_LIMIT = 1.hour.to_i
 
     def create_invoice(money)
@@ -19,10 +19,10 @@ class PaymentServices::AnyMoney
       form_params = {
         merchant: order.income_wallet.account,
         externalid: order.public_id,
-        amount: order.invoice_money.exchange_to(UAH).to_f,
+        amount: order.invoice_money.to_f.to_s,
         in_curr: ANYMONEY_CURRENCY,
         expiry: ANYMONEY_TIME_LIMIT,
-        payway: ANYMONEY_PAYMENT_CARD,
+        payway: ANYMONEY_PAYWAY,
         callback_url: order.income_payment_system.callback_url
       }
       {
