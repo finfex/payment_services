@@ -23,7 +23,8 @@ class PaymentServices::AnyMoney
         in_curr: ANYMONEY_CURRENCY,
         expiry: ANYMONEY_TIME_LIMIT,
         payway: ANYMONEY_PAYWAY,
-        callback_url: order.income_payment_system.callback_url
+        callback_url: order.income_payment_system.callback_url,
+        client_email: order.user&.email
       }
       {
         url: ANYMONEY_PAYMENT_FORM_URL,
