@@ -47,7 +47,7 @@ class PaymentServices::AnyMoney
     end
 
     def currency
-      if payway == ANYMONEY_PAYWAY_CARD
+      if payway == ANYMONEY_PAYWAY_QIWI
         RUB
       elsif payway == ANYMONEY_PAYWAY_CARD
         UAH
