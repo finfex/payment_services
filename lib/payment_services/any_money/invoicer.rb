@@ -20,7 +20,7 @@ class PaymentServices::AnyMoney
         merchant: order.income_wallet.merchant_id,
         externalid: order.public_id,
         amount: amount,
-        in_curr: currency,
+        in_curr: currency.to_s,
         expiry: ANYMONEY_TIME_LIMIT,
         payway: payway,
         callback_url: order.income_payment_system.callback_url,
