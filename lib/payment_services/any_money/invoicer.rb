@@ -7,8 +7,8 @@ require_relative 'invoice'
 class PaymentServices::AnyMoney
   class Invoicer < ::PaymentServices::Base::Invoicer
     ANYMONEY_PAYMENT_FORM_URL = 'https://sci.any.money/invoice'
-    ANYMONEY_CURRENCY = 'RUB'
-    ANYMONEY_PAYWAY = 'qiwi'
+    ANYMONEY_PAYWAY_QIWI = 'qiwi'
+    ANYMONEY_PAYWAY_CARD = 'visamc'
     ANYMONEY_TIME_LIMIT = 1.hour.to_i
 
     def create_invoice(money)
@@ -17,12 +17,12 @@ class PaymentServices::AnyMoney
 
     def invoice_form_data
       form_params = {
-        merchant: order.income_wallet.account,
+        merchant: order.income_wallet.merchant_id,
         externalid: order.public_id,
-        amount: order.invoice_money.to_f.to_s,
-        in_curr: ANYMONEY_CURRENCY,
+        amount: amount,
+        in_curr: currency,
         expiry: ANYMONEY_TIME_LIMIT,
-        payway: ANYMONEY_PAYWAY,
+        payway: payway,
         callback_url: order.income_payment_system.callback_url,
         client_email: order.user&.email
       }
@@ -38,6 +38,28 @@ class PaymentServices::AnyMoney
     def build_signature(params)
       sign_string = params.sort_by { |k, _v| k }.map(&:last).join.downcase
       OpenSSL::HMAC.hexdigest('SHA512', order.income_wallet.api_key, sign_string)
+    end
+
+    private
+
+    def payway
+      @payway ||= order.income_payment_system.payway
+    end
+
+    def currency
+      if payway == ANYMONEY_PAYWAY_CARD
+        RUB
+      elsif payway == ANYMONEY_PAYWAY_CARD
+        UAH
+      end
+    end
+
+    def amount
+      if currency == RUB
+        order.invoice_money
+      elsif currency == UAH
+        order.invoice_money.exchange_to(UAH)
+      end.to_f.to_s
     end
   end
 end
