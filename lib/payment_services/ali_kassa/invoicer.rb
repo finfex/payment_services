@@ -3,15 +3,32 @@
 # Copyright (c) 2018 FINFEX https://github.com/finfex
 
 require_relative 'invoice'
+require_relative 'client'
 
 class PaymentServices::AliKassa
   class Invoicer < ::PaymentServices::Base::Invoicer
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
-    ALIKASSA_CURRENCY = 'RUB'
+    ALIKASSA_RUB_CURRENCY = 'RUB'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
+    ALIKASSA_QIWI = 'Qiwi'
 
     def create_invoice(money)
-      Invoice.create!(amount: money, order_public_id: order.public_id)
+      invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
+      client = PaymentServices::AliKassa::Client.new(
+        merchant_id: order.income_wallet.merchant_id,
+        secret: order.income_wallet.api_key
+      )
+      deposit = client.create_deposit(
+        currency: ALIKASSA_RUB_CURRENCY,
+        amount: order.invoice_money.to_f,
+        public_id: order.public_id,
+        payment_system: ALIKASSA_QIWI,
+        currency: ALIKASSA_RUB_CURRENCY,
+        ip: order.user.last_ip,
+        phone: order.income_account
+      )
+      invoice.update!(deposit_payload: deposit, pay_url: deposit.dig('return', 'payData', 'url'))
+      invoice
     end
 
     def invoice_form_data
@@ -25,11 +42,15 @@ class PaymentServices::AliKassa
           merchantUuid: order.income_wallet.account,
           orderId: order.public_id,
           amount: order.invoice_money.to_f,
-          currency: ALIKASSA_CURRENCY,
+          currency: ALIKASSA_RUB_CURRENCY,
           desc: description,
           lifetime: ALIKASSA_TIME_LIMIT
         }
       }
+    end
+
+    def pay_invoice_url
+      Invoice.find_by(order_public_id: order.public_id)&.pay_url
     end
   end
 end
