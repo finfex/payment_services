@@ -19,7 +19,6 @@ class PaymentServices::AliKassa
         secret: order.income_wallet.api_key
       )
       deposit = client.create_deposit(
-        currency: ALIKASSA_RUB_CURRENCY,
         amount: order.invoice_money.to_f,
         public_id: order.public_id,
         payment_system: ALIKASSA_QIWI,
