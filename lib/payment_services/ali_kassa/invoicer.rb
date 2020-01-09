@@ -11,6 +11,7 @@ class PaymentServices::AliKassa
     ALIKASSA_RUB_CURRENCY = 'RUB'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
     ALIKASSA_QIWI = 'Qiwi'
+    ALIKASSA_LOCALHOST_IP = '127.0.0.1'
 
     def create_invoice(money)
       invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
@@ -23,7 +24,7 @@ class PaymentServices::AliKassa
         public_id: order.public_id,
         payment_system: ALIKASSA_QIWI,
         currency: ALIKASSA_RUB_CURRENCY,
-        ip: order.user.last_ip,
+        ip: ip_from(order.user),
         phone: order.income_account
       )
       invoice.update!(deposit_payload: deposit, pay_url: deposit.dig('return', 'payData', 'url'))
@@ -50,6 +51,18 @@ class PaymentServices::AliKassa
 
     def pay_invoice_url
       Invoice.find_by(order_public_id: order.public_id)&.pay_url
+    end
+
+    private
+
+    def ip_from(user)
+      if user.last_login_from_ip_address.present?
+        user.last_login_from_ip_address
+      elsif user.last_ip.present?
+        user.last_ip
+      else
+        ALIKASSA_LOCALHOST_IP
+      end
     end
   end
 end

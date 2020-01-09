@@ -9,7 +9,6 @@ class PaymentServices::AliKassa
     API_URL = 'https://api.alikassa.com/v1/site'
     MAX_INVOICE_LIVE = 18.minutes
     DEFAULT_USERAGENT = 'Mozilla/5.0'
-    DEFAULT_LOCALHOST_IP = '127.0.0.1'
 
     def initialize(merchant_id:, secret:)
       @merchant_id = merchant_id
@@ -26,7 +25,7 @@ class PaymentServices::AliKassa
         desc: I18n.t('payment_systems.personal_payment', order_id: public_id),
         lifetime: MAX_INVOICE_LIVE.to_i,
         paySystem: payment_system,
-        ip: ip || DEFAULT_LOCALHOST_IP,
+        ip: ip,
         userAgent: DEFAULT_USERAGENT
       }
 
