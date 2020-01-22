@@ -8,7 +8,7 @@ class PaymentServices::AliKassaPeerToPeer
   class Invoicer < ::PaymentServices::Base::Invoicer
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
     ALIKASSA_RUB_CURRENCY = 'RUB'
-    ALIKASSA_TIME_LIMIT = 18.minute.to_i
+    ALIKASSA_CARD = 'Card'
 
     def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
@@ -26,6 +26,7 @@ class PaymentServices::AliKassaPeerToPeer
           orderId: order.public_id,
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
+          payWayVia: ALIKASSA_CARD,
           desc: description
         }
       }
