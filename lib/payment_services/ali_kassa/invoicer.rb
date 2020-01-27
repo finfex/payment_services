@@ -39,7 +39,7 @@ class PaymentServices::AliKassa
         target: '_blank',
         'accept-charset' => 'UTF-8',
         inputs: {
-          merchantUuid: order.income_wallet.account,
+          merchantUuid: order.income_wallet.merchant_id,
           orderId: order.public_id,
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
