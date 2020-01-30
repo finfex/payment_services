@@ -44,7 +44,8 @@ class PaymentServices::AliKassa
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
           desc: description,
-          lifetime: ALIKASSA_TIME_LIMIT
+          lifetime: ALIKASSA_TIME_LIMIT,
+          payWayVia: ALIKASSA_QIWI
         }
       }
     end
