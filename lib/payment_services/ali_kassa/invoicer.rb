@@ -45,7 +45,8 @@ class PaymentServices::AliKassa
           currency: ALIKASSA_RUB_CURRENCY,
           desc: description,
           lifetime: ALIKASSA_TIME_LIMIT,
-          payWayVia: ALIKASSA_QIWI
+          payWayVia: ALIKASSA_QIWI,
+          customerEmail: order.user.try(:email)
         }
       }
     end

@@ -27,7 +27,8 @@ class PaymentServices::AliKassaPeerToPeer
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
           payWayVia: ALIKASSA_CARD,
-          desc: description
+          desc: description,
+          customerEmail: order.user.try(:email)
         }
       }
     end
