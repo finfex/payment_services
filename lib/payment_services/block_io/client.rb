@@ -5,6 +5,7 @@
 class PaymentServices::BlockIo
   class Client
     include AutoLogger
+    Error = Class.new StandardError
 
     def initialize(api_key:, pin:)
       @api_key = api_key
@@ -13,7 +14,11 @@ class PaymentServices::BlockIo
 
     def make_payout(address:, amount:, nounce:)
       BlockIo.set_options(api_key: api_key, pin: pin)
-      BlockIo.withdraw(to_addresses: address, amounts: amount, nounce: nounce)
+      begin
+        BlockIo.withdraw(to_addresses: address, amounts: amount, nounce: nounce)
+      rescue Exception => error # BlockIo uses Exceptions instead StandardError
+        raise Error, error.to_s
+      end
     end
 
     private
