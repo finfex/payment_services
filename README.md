@@ -13,6 +13,7 @@ Status](https://travis-ci.org/finfex/payment_services.svg?branch=master)](https:
 * AliKassa
 * YandexMoney
 * AnyMoney
+* BlockIo
 
 ## Installation
 

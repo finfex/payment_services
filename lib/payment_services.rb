@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2018 FINFEX https://github.com/finfex
+# Copyright (c) 2020 FINFEX https://github.com/finfex
 
 require 'payment_services/version'
 require 'payment_services/configuration'
@@ -20,6 +20,7 @@ module PaymentServices
   autoload :PerfectMoney, 'payment_services/perfect_money'
   autoload :RBK, 'payment_services/rbk'
   autoload :YandexMoney, 'payment_services/yandex_money'
+  autoload :BlockIo, 'payment_services/block_io'
 
   UnauthorizedPayout = Class.new StandardError
 
