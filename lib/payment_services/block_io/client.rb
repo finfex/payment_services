@@ -12,10 +12,10 @@ class PaymentServices::BlockIo
       @pin = pin
     end
 
-    def make_payout(address:, amount:, nounce:)
+    def make_payout(address:, amount:, nonce:)
       BlockIo.set_options(api_key: api_key, pin: pin)
       begin
-        BlockIo.withdraw(to_addresses: address, amounts: amount, nounce: nounce)
+        BlockIo.withdraw(to_addresses: address, amounts: amount, nonce: nonce)
       rescue Exception => error # BlockIo uses Exceptions instead StandardError
         raise Error, error.to_s
       end
