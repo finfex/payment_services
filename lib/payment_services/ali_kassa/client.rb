@@ -22,7 +22,7 @@ class PaymentServices::AliKassa
         phone: phone,
         amount: amount.to_s,
         currency: currency,
-        desc: I18n.t('payment_systems.personal_payment', order_id: public_id),
+        desc: I18n.t('payment_systems.default_product', order_id: public_id),
         lifetime: MAX_INVOICE_LIVE.to_i,
         paySystem: payment_system,
         ip: ip,

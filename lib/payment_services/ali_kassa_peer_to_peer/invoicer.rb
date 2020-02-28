@@ -15,7 +15,6 @@ class PaymentServices::AliKassaPeerToPeer
     end
 
     def invoice_form_data
-      description = I18n.t('payment_systems.personal_payment', order_id: order.public_id)
       {
         url: ALIKASSA_PAYMENT_FORM_URL,
         method: 'POST',
@@ -27,7 +26,7 @@ class PaymentServices::AliKassaPeerToPeer
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
           payWayVia: ALIKASSA_CARD,
-          desc: description,
+          desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
           customerEmail: order.user.try(:email)
         }
       }

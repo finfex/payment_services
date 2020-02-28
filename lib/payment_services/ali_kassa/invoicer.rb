@@ -32,7 +32,6 @@ class PaymentServices::AliKassa
     end
 
     def invoice_form_data
-      description = I18n.t('payment_systems.personal_payment', order_id: order.public_id)
       {
         url: ALIKASSA_PAYMENT_FORM_URL,
         method: 'POST',
@@ -43,7 +42,7 @@ class PaymentServices::AliKassa
           orderId: order.public_id,
           amount: order.invoice_money.to_f,
           currency: ALIKASSA_RUB_CURRENCY,
-          desc: description,
+          desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
           lifetime: ALIKASSA_TIME_LIMIT,
           payWayVia: ALIKASSA_QIWI,
           customerEmail: order.user.try(:email)
