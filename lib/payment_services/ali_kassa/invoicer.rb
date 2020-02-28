@@ -24,7 +24,7 @@ class PaymentServices::AliKassa
         public_id: order.public_id,
         payment_system: ALIKASSA_QIWI,
         currency: ALIKASSA_RUB_CURRENCY,
-        ip: ip_from(order.user),
+        ip: ip_from(order),
         phone: order.income_account
       )
       invoice.update!(deposit_payload: deposit, pay_url: deposit.dig('return', 'payData', 'url'))
@@ -58,10 +58,12 @@ class PaymentServices::AliKassa
     private
 
     def ip_from(user)
-      if user.last_login_from_ip_address.present?
-        user.last_login_from_ip_address
+      if order.remote_ip.present?
+        order.remote_ip
+      elsif user.last_login_from_ip_address.present?
+        order.user.last_login_from_ip_address
       elsif user.last_ip.present?
-        user.last_ip
+        order.user.last_ip
       else
         ALIKASSA_LOCALHOST_IP
       end
