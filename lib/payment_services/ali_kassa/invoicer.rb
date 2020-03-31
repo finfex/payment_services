@@ -9,7 +9,6 @@ class PaymentServices::AliKassa
   class Invoicer < ::PaymentServices::Base::Invoicer
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
-    ALIKASSA_QIWI = 'Qiwi'
     ALIKASSA_LOCALHOST_IP = '127.0.0.1'
 
     def create_invoice(money)
@@ -21,7 +20,7 @@ class PaymentServices::AliKassa
       deposit = client.create_deposit(
         amount: order.invoice_money.to_f,
         public_id: order.public_id,
-        payment_system: ALIKASSA_QIWI,
+        payment_system: order.income_payment_system.payway&.capitalize,
         currency: invoice.amount_currency,
         ip: ip_from(order),
         phone: order.income_account
@@ -43,7 +42,7 @@ class PaymentServices::AliKassa
           currency: order.income_money.currency.to_s,
           desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
           lifetime: ALIKASSA_TIME_LIMIT,
-          payWayVia: ALIKASSA_QIWI,
+          payWayVia: order.income_payment_system.payway&.capitalize,
           customerEmail: order.user.try(:email)
         }
       }
