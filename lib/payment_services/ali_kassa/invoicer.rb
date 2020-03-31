@@ -13,19 +13,19 @@ class PaymentServices::AliKassa
 
     def create_invoice(money)
       invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
-      client = PaymentServices::AliKassa::Client.new(
-        merchant_id: order.income_wallet.merchant_id,
-        secret: order.income_wallet.api_key
-      )
-      deposit = client.create_deposit(
-        amount: order.invoice_money.to_f,
-        public_id: order.public_id,
-        payment_system: order.income_payment_system.payway&.capitalize,
-        currency: invoice.amount_currency,
-        ip: ip_from(order),
-        phone: order.income_account
-      )
-      invoice.update!(deposit_payload: deposit, pay_url: deposit.dig('return', 'payData', 'url'))
+      # client = PaymentServices::AliKassa::Client.new(
+      #   merchant_id: order.income_wallet.merchant_id,
+      #   secret: order.income_wallet.api_key
+      # )
+      # deposit = client.create_deposit(
+      #   amount: order.invoice_money.to_f,
+      #   public_id: order.public_id,
+      #   payment_system: order.income_payment_system.payway&.capitalize,
+      #   currency: invoice.amount_currency,
+      #   ip: ip_from(order),
+      #   phone: order.income_account
+      # )
+      # invoice.update!(deposit_payload: deposit, pay_url: deposit.dig('return', 'payData', 'url'))
       invoice
     end
 
