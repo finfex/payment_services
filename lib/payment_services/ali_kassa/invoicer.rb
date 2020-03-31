@@ -8,7 +8,6 @@ require_relative 'client'
 class PaymentServices::AliKassa
   class Invoicer < ::PaymentServices::Base::Invoicer
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
-    ALIKASSA_RUB_CURRENCY = 'RUB'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
     ALIKASSA_QIWI = 'Qiwi'
     ALIKASSA_LOCALHOST_IP = '127.0.0.1'
@@ -23,7 +22,7 @@ class PaymentServices::AliKassa
         amount: order.invoice_money.to_f,
         public_id: order.public_id,
         payment_system: ALIKASSA_QIWI,
-        currency: ALIKASSA_RUB_CURRENCY,
+        currency: invoice.amount_currency,
         ip: ip_from(order),
         phone: order.income_account
       )
@@ -41,7 +40,7 @@ class PaymentServices::AliKassa
           merchantUuid: order.income_wallet.merchant_id,
           orderId: order.public_id,
           amount: order.invoice_money.to_f,
-          currency: ALIKASSA_RUB_CURRENCY,
+          currency: order.income_money.currency.to_s,
           desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
           lifetime: ALIKASSA_TIME_LIMIT,
           payWayVia: ALIKASSA_QIWI,
