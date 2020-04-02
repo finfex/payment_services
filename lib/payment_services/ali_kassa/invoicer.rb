@@ -10,6 +10,7 @@ class PaymentServices::AliKassa
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
     ALIKASSA_LOCALHOST_IP = '127.0.0.1'
+    ALIKASSA_CARD = 'visamc'
 
     def create_invoice(money)
       invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
@@ -30,7 +31,7 @@ class PaymentServices::AliKassa
     end
 
     def invoice_form_data
-      {
+      invoice_data = {
         url: ALIKASSA_PAYMENT_FORM_URL,
         method: 'POST',
         target: '_blank',
@@ -46,6 +47,8 @@ class PaymentServices::AliKassa
           customerEmail: order.user.try(:email)
         }
       }
+      invoice_data[:inputs][:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
+      invoice_data
     end
 
     def pay_invoice_url
