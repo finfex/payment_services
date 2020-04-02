@@ -10,7 +10,8 @@ class PaymentServices::AliKassa
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
     ALIKASSA_LOCALHOST_IP = '127.0.0.1'
-    ALIKASSA_CARD = 'visamc'
+    ALIKASSA_CARD = 'card'
+    ALIKASSA_PRIVAT = 'privat24'
 
     def create_invoice(money)
       invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
