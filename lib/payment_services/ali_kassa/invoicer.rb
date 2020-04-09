@@ -32,24 +32,26 @@ class PaymentServices::AliKassa
     end
 
     def invoice_form_data
-      invoice_data = {
+      invoice_params = {
+        merchantUuid: order.income_wallet.merchant_id,
+        orderId: order.public_id,
+        amount: order.invoice_money.to_f,
+        currency: order.income_money.currency.to_s,
+        desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
+        lifetime: ALIKASSA_TIME_LIMIT,
+        payWayVia: order.income_payment_system.payway&.capitalize,
+        customerEmail: order.user.try(:email)
+      }
+      invoice_params[:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
+      invoice_params[:sign] = calculate_signature(invoice_params)
+
+      {
         url: ALIKASSA_PAYMENT_FORM_URL,
         method: 'POST',
         target: '_blank',
         'accept-charset' => 'UTF-8',
-        inputs: {
-          merchantUuid: order.income_wallet.merchant_id,
-          orderId: order.public_id,
-          amount: order.invoice_money.to_f,
-          currency: order.income_money.currency.to_s,
-          desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
-          lifetime: ALIKASSA_TIME_LIMIT,
-          payWayVia: order.income_payment_system.payway&.capitalize,
-          customerEmail: order.user.try(:email)
-        }
+        inputs: invoice_params
       }
-      invoice_data[:inputs][:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
-      invoice_data
     end
 
     def pay_invoice_url
@@ -57,6 +59,12 @@ class PaymentServices::AliKassa
     end
 
     private
+
+    def calculate_signature(params)
+      sign_string = params.sort_by { |k, _v| k }.map(&:last).join(':')
+      sign_string += ":#{order.income_wallet.api_key}"
+      Digest::MD5.base64digest(sign_string)
+    end
 
     def ip_from(user)
       if order.remote_ip.present?
