@@ -20,7 +20,8 @@ class PaymentServices::AliKassaPeerToPeer
         orderId: order.public_id,
         amount: order.invoice_money.to_f,
         currency: ALIKASSA_RUB_CURRENCY,
-        payWayVia: order.income_payment_system.payway&.capitalize,
+        payWayVia: 'AliKassa',
+        payWayOn: order.income_payment_system.payway&.capitalize,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         customerEmail: order.user.try(:email)
       }
