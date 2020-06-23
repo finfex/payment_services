@@ -15,12 +15,14 @@ class PaymentServices::AliKassaPeerToPeer
     end
 
     def invoice_form_data
+      pay_way = order.income_payment_system.payway&.capitalize
       invoice_params = {
         merchantUuid: order.income_wallet.merchant_id,
         orderId: order.public_id,
         amount: order.invoice_money.to_f,
         currency: ALIKASSA_RUB_CURRENCY,
-        payWayVia: order.income_payment_system.payway&.capitalize,
+        payWayVia: pay_way == 'Qiwi' ? 'Alikassa' : pay_way,
+        payWayOn: pay_way,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         customerEmail: order.user.try(:email)
       }
