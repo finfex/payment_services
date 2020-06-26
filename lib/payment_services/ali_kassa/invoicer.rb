@@ -40,10 +40,10 @@ class PaymentServices::AliKassa
         currency: order.income_money.currency.to_s,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         lifetime: ALIKASSA_TIME_LIMIT,
-        payWayVia: pay_way == 'Qiwi' ? 'Alikassa' : pay_way,
-        payWayOn: pay_way,
+        payWayVia: pay_way == 'Qiwi' ? 'AliKassa' : pay_way,
         customerEmail: order.user.try(:email)
       }
+      invoice_params[:payWayOn] = 'Qiwi' if pay_way == 'Qiwi'
       invoice_params[:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
       invoice_params[:sign] = calculate_signature(invoice_params)
 
