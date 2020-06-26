@@ -32,6 +32,7 @@ class PaymentServices::AliKassa
     end
 
     def invoice_form_data
+      pay_way = order.income_payment_system.payway&.capitalize
       invoice_params = {
         merchantUuid: order.income_wallet.merchant_id,
         orderId: order.public_id,
@@ -39,7 +40,8 @@ class PaymentServices::AliKassa
         currency: order.income_money.currency.to_s,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         lifetime: ALIKASSA_TIME_LIMIT,
-        payWayVia: order.income_payment_system.payway&.capitalize,
+        payWayVia: pay_way == 'Qiwi' ? 'Alikassa' : pay_way,
+        payWayOn: pay_way,
         customerEmail: order.user.try(:email)
       }
       invoice_params[:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
