@@ -21,11 +21,11 @@ class PaymentServices::AliKassaPeerToPeer
         orderId: order.public_id,
         amount: order.invoice_money.to_f,
         currency: ALIKASSA_RUB_CURRENCY,
-        payWayVia: pay_way == 'Qiwi' ? 'Alikassa' : pay_way,
-        payWayOn: pay_way,
+        payWayVia: pay_way == 'Qiwi' ? 'AliKassa' : pay_way,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         customerEmail: order.user.try(:email)
       }
+      invoice_params[:payWayOn] = 'Qiwi' if pay_way == 'Qiwi'
       invoice_params[:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
       invoice_params[:sign] = calculate_signature(invoice_params)
 
