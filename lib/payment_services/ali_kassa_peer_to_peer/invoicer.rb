@@ -21,7 +21,7 @@ class PaymentServices::AliKassaPeerToPeer
         orderId: order.public_id,
         amount: order.invoice_money.to_f,
         currency: ALIKASSA_RUB_CURRENCY,
-        payWayVia: pay_way == 'Qiwi' ? 'AliKassa' : pay_way,
+        payWayVia: pay_way,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         customerEmail: order.user.try(:email)
       }
