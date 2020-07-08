@@ -8,10 +8,12 @@ require_relative 'client'
 class PaymentServices::BlockIo
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
     MIN_PAYOUT_AMOUNT = 0.00002 # Block.io restriction
+    ALLOWED_CURRENCIES = [BTC, LTC].freeze
 
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:)
-      raise 'Можно делать выплаты только в биткоинах' unless amount.currency == BTC
-      raise 'Кошелек должен быть биткоиновый' unless wallet.currency == BTC
+      raise "Можно делать выплаты только в #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(amount.currency)
+      raise "Кошелек должен быть в  #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(wallet.currency)
+      raise 'Валюты должны совпадать' unless amount.currency == wallet.currency
       raise "Минимальная выплата #{MIN_PAYOUT_AMOUNT}, к выплате #{amount}" if amount.to_f < MIN_PAYOUT_AMOUNT
 
       super
