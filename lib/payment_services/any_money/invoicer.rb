@@ -7,8 +7,8 @@ require_relative 'invoice'
 class PaymentServices::AnyMoney
   class Invoicer < ::PaymentServices::Base::Invoicer
     ANYMONEY_PAYMENT_FORM_URL = 'https://sci.any.money/invoice'
-    ANYMONEY_PAYWAY_QIWI = 'qiwi'
-    ANYMONEY_PAYWAY_CARD = 'visamc'
+    RUB_PAYWAYS = %w[qiwi]
+    UAH_PAYWAYS = %w[visamc visamc_p2p]
     ANYMONEY_TIME_LIMIT = 1.hour.to_i
 
     def create_invoice(money)
@@ -47,9 +47,9 @@ class PaymentServices::AnyMoney
     end
 
     def currency
-      if payway == ANYMONEY_PAYWAY_QIWI
+      if RUB_PAYWAYS.include?(payway)
         RUB
-      elsif payway == ANYMONEY_PAYWAY_CARD
+      elsif UAH_PAYWAYS.include?(payway)
         UAH
       end
     end
