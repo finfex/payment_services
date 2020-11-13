@@ -9,7 +9,7 @@ class PaymentServices::AnyMoney
     ANYMONEY_PAYMENT_FORM_URL = 'https://sci.any.money/invoice'
     RUB_PAYWAYS = %w[qiwi]
     UAH_PAYWAYS = %w[visamc visamc_p2p]
-    ANYMONEY_TIME_LIMIT = 1.hour.to_i
+    ANYMONEY_TIME_LIMIT = "1h30m"
 
     def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
