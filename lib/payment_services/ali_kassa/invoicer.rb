@@ -39,7 +39,7 @@ class PaymentServices::AliKassa
         currency: order.income_money.currency.to_s,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         lifetime: ALIKASSA_TIME_LIMIT,
-        payWayVia: pay_way&.capitalize,
+        payWayVia: pay_way&.upcase_first,
         customerEmail: order.user.try(:email)
       }
       invoice_params = assign_additional_params(invoice_params: invoice_params, pay_way: pay_way)
