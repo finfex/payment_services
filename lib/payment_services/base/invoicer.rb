@@ -35,6 +35,10 @@ module PaymentServices
       nil
     end
 
+    def async_invoice_state_updater?
+      false
+    end
+
     private
 
     delegate :id, to: :order, prefix: true
