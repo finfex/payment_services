@@ -39,7 +39,8 @@ class PaymentServices::CryptoApis
         currency = invoice.amount_currency.to_s
         response = client.address_transactions(currency: currency, address: invoice.address)
         response[:payload].find do |transaction|
-          transaction[:amount].to_d == invoice.amount.to_d && Time.parse(transaction[:datetime]) > invoice.created_at
+          received_amount = transaction[:received][invoice.address]
+          received_amount&.to_d == invoice.amount.to_d && Time.parse(transaction[:datetime]) > invoice.created_at
         end
       end
     end
