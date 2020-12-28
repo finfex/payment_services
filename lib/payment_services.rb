@@ -21,6 +21,7 @@ module PaymentServices
   autoload :RBK, 'payment_services/rbk'
   autoload :YandexMoney, 'payment_services/yandex_money'
   autoload :BlockIo, 'payment_services/block_io'
+  autoload :CryptoApis, 'payment_services/crypto_apis'
 
   UnauthorizedPayout = Class.new StandardError
 

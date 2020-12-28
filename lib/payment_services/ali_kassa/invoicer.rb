@@ -10,8 +10,7 @@ class PaymentServices::AliKassa
     ALIKASSA_PAYMENT_FORM_URL = 'https://sci.alikassa.com/payment'
     ALIKASSA_TIME_LIMIT = 18.minute.to_i
     ALIKASSA_LOCALHOST_IP = '127.0.0.1'
-    ALIKASSA_CARD = 'card'
-    ALIKASSA_PRIVAT = 'privat24'
+    ALIKASSA_PAYWAY = { card: 'card', qiwi: 'qiwi', mobile: 'mobilePayment' }.freeze
 
     def create_invoice(money)
       invoice = Invoice.create!(amount: money, order_public_id: order.public_id)
@@ -32,6 +31,7 @@ class PaymentServices::AliKassa
     end
 
     def invoice_form_data
+      pay_way = order.income_payment_system.payway
       invoice_params = {
         merchantUuid: order.income_wallet.merchant_id,
         orderId: order.public_id,
@@ -39,10 +39,10 @@ class PaymentServices::AliKassa
         currency: order.income_money.currency.to_s,
         desc: I18n.t('payment_systems.default_product', order_id: order.public_id),
         lifetime: ALIKASSA_TIME_LIMIT,
-        payWayVia: order.income_payment_system.payway&.capitalize,
+        payWayVia: pay_way&.upcase_first,
         customerEmail: order.user.try(:email)
       }
-      invoice_params[:number] = order.income_account.gsub(/\D/, '') if order.income_payment_system.payway == ALIKASSA_CARD
+      invoice_params = assign_additional_params(invoice_params: invoice_params, pay_way: pay_way)
       invoice_params[:sign] = calculate_signature(invoice_params)
 
       {
@@ -59,6 +59,17 @@ class PaymentServices::AliKassa
     end
 
     private
+
+    def assign_additional_params(invoice_params:, pay_way:)
+      invoice_params[:payWayOn] = 'Qiwi' if pay_way == ALIKASSA_PAYWAY[:qiwi]
+      invoice_params[:number] = order.income_account.gsub(/\D/, '') if pay_way == ALIKASSA_PAYWAY[:card]
+      if pay_way == ALIKASSA_PAYWAY[:mobile]
+        invoice_params[:customerPhone] = order.income_account.gsub(/\D/, '')
+        invoice_params[:operator] = order.income_operator
+      end
+
+      invoice_params
+    end
 
     def calculate_signature(params)
       sign_string = params.sort_by { |k, _v| k }.map(&:last).join(':')

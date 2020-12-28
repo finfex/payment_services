@@ -14,6 +14,7 @@ Status](https://travis-ci.org/finfex/payment_services.svg?branch=master)](https:
 * YandexMoney
 * AnyMoney
 * BlockIo
+* CryptoApis
 
 ## Installation
 
