@@ -19,9 +19,9 @@ class PaymentServices::CryptoApis
       )
     end
 
-    def transaction_details(transition_id)
+    def transaction_details(transaction_id)
       safely_parse http_request(
-        url: "#{API_URL}/bc/btc/testnet/txs/basic/txid/#{transition_id}",
+        url: "#{API_URL}/bc/btc/testnet/txs/basic/txid/#{transaction_id}",
         method: :GET
       )
     end

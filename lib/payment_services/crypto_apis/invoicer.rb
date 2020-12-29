@@ -16,7 +16,7 @@ class PaymentServices::CryptoApis
       return if transaction.nil?
 
       invoice.update!(
-        transition_id: invoice.transition_id || transaction[:txid],
+        transaction_id: invoice.transaction_id || transaction[:txid],
         confirmations: transaction[:confirmations]
       )
       invoice.pay!(payload: transaction) if invoice.complete_payment?
@@ -33,8 +33,8 @@ class PaymentServices::CryptoApis
     private
 
     def transaction_for(invoice)
-      if invoice.transition_id
-        client.transaction_details(invoice.transition_id)[:payload]
+      if invoice.transaction_id
+        client.transaction_details(invoice.transaction_id)[:payload]
       else
         currency = invoice.amount_currency.to_s
         response = client.address_transactions(currency: currency, address: invoice.address)
