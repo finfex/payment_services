@@ -7,28 +7,34 @@ class PaymentServices::CryptoApis
     include AutoLogger
     TIMEOUT = 10
     API_URL = 'https://api.cryptoapis.io/v1'
+    NETWORK = 'mainnet'
 
-    def initialize(api_key)
+    def initialize(api_key:, currency:)
       @api_key = api_key
+      @currency = currency
     end
 
-    def address_transactions(currency:, address:)
+    def address_transactions(address)
       safely_parse http_request(
-        url: "#{API_URL}/bc/btc/mainnet/address/#{address}/basic/transactions",
+        url: "#{base_url}/address/#{address}/basic/transactions",
         method: :GET
       )
     end
 
     def transaction_details(transaction_id)
       safely_parse http_request(
-        url: "#{API_URL}/bc/btc/mainnet/txs/basic/txid/#{transaction_id}",
+        url: "#{base_url}/txs/basic/txid/#{transaction_id}",
         method: :GET
       )
     end
 
     private
 
-    attr_reader :api_key
+    attr_reader :api_key, :currency
+
+    def base_url
+      "#{API_URL}/bc/#{currency}/#{NETWORK}"
+    end
 
     def http_request(url:, method:, body: nil)
       uri = URI.parse(url)
@@ -60,14 +66,16 @@ class PaymentServices::CryptoApis
 
     def headers
       {
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
         'X-API-Key': api_key
       }
     end
 
     def safely_parse(response)
-      JSON.parse(response.body).with_indifferent_access
+      res = JSON.parse(response.body).with_indifferent_access
+      logger.info "Response: #{res}"
+      res
     rescue JSON::ParserError => err
       logger.warn "Request failed #{response.class} #{response.body}"
       Bugsnag.notify err do |report|
