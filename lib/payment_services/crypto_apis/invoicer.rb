@@ -47,7 +47,7 @@ class PaymentServices::CryptoApis
           # bch has 'bitcoincash:' suffix. If won't affect other currencies
           address = invoice.address.split(':').last
 
-          received_amount = transaction[:received][address]
+          received_amount = transaction[:received][address] || transaction[:received][invoice.address]
           received_amount&.to_d == invoice.amount.to_d && Time.parse(transaction[:datetime]) > invoice.created_at
         end if response[:payload]
       end
