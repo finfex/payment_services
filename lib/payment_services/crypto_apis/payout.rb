@@ -20,14 +20,14 @@ class PaymentServices::CryptoApis
         event :confirm, transitions_to: :completed
       end
       state :completed
+      state :failed
     end
 
     def pay(txid:)
       update(txid: txid)
-      txid
     end
 
-    def complete_payout?
+    def success?
       return false if confirmations.nil?
 
       confirmations >= CONFIRMATIONS_FOR_COMPLETE
