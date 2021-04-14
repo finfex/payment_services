@@ -17,7 +17,11 @@ class PaymentServices::AppexMoney
       @payout_id = payout_id
       return if payout.pending?
 
-      response = client.get(params: { number: "Invoice#{@payout_id}" })
+      begin
+        response = client.get(params: { number: payout_number.to_s })
+      rescue Net::ReadTimeout => error
+        retry
+      end
       raise "Can't get order details: #{response[:errortext]}" if response.dig(:errortext)
 
       payout.update!(status: response[:status]) if response[:status]
@@ -31,6 +35,10 @@ class PaymentServices::AppexMoney
       @payout ||= Payout.find_by(id: payout_id)
     end
 
+    def payout_number
+      @payout_number ||= OrderPayout.find(payout.order_payout_id).order.public_id
+    end
+
     private
 
     attr_accessor :payout_id
@@ -42,12 +50,16 @@ class PaymentServices::AppexMoney
       params = {
         amount: amount.to_d.round(2).to_s,
         amountcurr: wallet.currency.to_s.upcase,
-        number: "Invoice#{@payout_id}",
+        number: payout_number.to_s,
         operator: wallet.merchant_id,
         params: destination_account,
         callback_url: "#{routes_helper.public_public_callbacks_api_root_url}/v1/appex_money/confirm_payout"
       }
-      response = client.create(params: params)
+      begin
+        response = client.create(params: params)
+      rescue Net::ReadTimeout => error
+        retry
+      end
       raise "Can't process payout: #{response[:errortext]}" if response.dig(:errortext)
 
       payout.pay!(number: response[:number]) if response[:number]
