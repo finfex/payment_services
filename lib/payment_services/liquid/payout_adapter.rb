@@ -46,6 +46,7 @@ class PaymentServices::Liquid
 
     def make_payout(amount:, address:, order_payout_id:)
       @payout_id = Payout.create!(amount: amount, address: address, order_payout_id: order_payout_id).id
+      amount += payout_fee
 
       payout_params = {
         amount: amount.to_d.round(2),
@@ -68,6 +69,10 @@ class PaymentServices::Liquid
       @client ||= begin
         Client.new(currency: wallet.currency.to_s, token_id: api_wallet.merchant_id.to_i, api_key: api_wallet.api_key)
       end
+    end
+
+    def payout_fee
+      wallet.payment_system.outcome_provider_fees.last.amount
     end
   end
 end
