@@ -17,6 +17,8 @@ class PaymentServices::CryptoApis
       transaction = transaction_for(invoice)
       return if transaction.nil?
 
+      invoice.has_transaction! if invoice.pending?
+
       update_invoice_details(invoice: invoice, transaction: transaction)
       invoice.pay!(payload: transaction) if invoice.complete_payment?
     end
