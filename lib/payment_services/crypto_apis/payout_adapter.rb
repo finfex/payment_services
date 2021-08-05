@@ -5,7 +5,7 @@ require_relative 'client'
 
 class PaymentServices::CryptoApis
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
-    delegate :outcome_transaction_fee, to: :payment_system
+    delegate :outcome_transaction_fee_amount, to: :payment_system
 
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:, order_payout_id:)
       raise 'amount is not a Money' unless amount.is_a? Money
@@ -41,7 +41,7 @@ class PaymentServices::CryptoApis
     attr_accessor :payout_id
 
     def make_payout(amount:, address:, order_payout_id:)
-      fee = outcome_transaction_fee || provider_fee
+      fee = outcome_transaction_fee_amount || provider_fee
       raise "Fee is too low: #{fee}" if fee < 0.00000001
 
       @payout_id = Payout.create!(amount: amount, address: address, fee: fee, order_payout_id: order_payout_id).id
