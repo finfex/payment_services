@@ -4,6 +4,7 @@
 
 class PaymentServices::CryptoApis
   class Invoice < ApplicationRecord
+    LTC_CONFIRMATIONS_FOR_COMPLETE = 1
     CONFIRMATIONS_FOR_COMPLETE = 2
     include Workflow
     self.table_name = 'crypto_apis_invoices'
@@ -39,11 +40,17 @@ class PaymentServices::CryptoApis
     end
 
     def complete_payment?
-      confirmations >= CONFIRMATIONS_FOR_COMPLETE
+      confirmations >= confirmations_amount_for_complete
     end
 
     def order
       Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
+    end
+
+    private
+
+    def confirmations_amount_for_complete
+      amount_currency == 'LTC' ? LTC_CONFIRMATIONS_FOR_COMPLETE : CONFIRMATIONS_FOR_COMPLETE
     end
   end
 end
