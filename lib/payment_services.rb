@@ -13,6 +13,7 @@ module PaymentServices
   require 'payment_services/base'
   require 'payment_services/base/invoicer'
   require 'payment_services/base/payout_adapter'
+  require 'payment_services/base/client'
 
   autoload :QIWI, 'payment_services/qiwi'
   autoload :AdvCash, 'payment_services/adv_cash'
@@ -27,6 +28,7 @@ module PaymentServices
   autoload :Kuna, 'payment_services/kuna'
   autoload :Liquid, 'payment_services/liquid'
   autoload :Obmenka, 'payment_services/obmenka'
+  autoload :Exmo, 'payment_services/exmo'
 
   UnauthorizedPayout = Class.new StandardError
 
