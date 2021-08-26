@@ -29,7 +29,7 @@ class PaymentServices::CryptoApis
           fromAddress: wallet.account,
           toAddress: payout.address,
           value: payout.amount.to_d,
-          gasPrice: payout.fee,
+          gasPrice: payout.fee.to_i,
           gasLimit: GAS_LIMIT,
           privateKey: wallet.api_secret
         }
