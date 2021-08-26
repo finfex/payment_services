@@ -3,6 +3,8 @@
 class PaymentServices::Kuna
   class Invoice < ApplicationRecord
     FEE_PERCENT = 0.5
+    UAH_FEE_PERCENT = 1.0
+    UAH_FEE_REGULAR = 5
     KOPECK_EPSILON = 1
 
     include Workflow
@@ -31,7 +33,7 @@ class PaymentServices::Kuna
     end
 
     def can_be_confirmed?(income_money:)
-      pending? && (amount_with_fee - income_money) <= Money.new(KOPECK_EPSILON, amount.currency)
+      pending? && amount_matches?(income_money)
     end
 
     def pay(payload:)
@@ -44,8 +46,16 @@ class PaymentServices::Kuna
 
     private
 
-    def amount_with_fee
-      amount * (1 - FEE_PERCENT / 100)
+    def amount_matches?(income_amount)
+      (amount - income_amount - fee) <= Money.new(KOPECK_EPSILON, amount.currency)
+    end
+
+    def fee
+      if amount_currency == 'UAH'
+        amount * UAH_FEE_PERCENT / 100 + UAH_FEE_REGULAR
+      else
+        amount * FEE_PERCENT / 100
+      end
     end
   end
 end
