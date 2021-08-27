@@ -52,7 +52,7 @@ class PaymentServices::Kuna
 
     def fee
       if amount_currency == 'UAH'
-        amount * UAH_FEE_PERCENT / 100 + UAH_FEE_REGULAR
+        amount * UAH_FEE_PERCENT / 100 + Money.from_amount(UAH_FEE_REGULAR, amount_currency)
       else
         amount * FEE_PERCENT / 100
       end
