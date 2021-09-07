@@ -14,7 +14,7 @@ class PaymentServices::Kuna
         amount: invoice.amount.to_f,
         currency: currency,
         payment_service: payment_service,
-        return_url: routes_helper.public_payment_status_success_url(order_id: order.public_id),
+        return_url: order.success_redirect,
         callback_url: order.income_payment_system.callback_url
       }
 

@@ -47,8 +47,8 @@ class PaymentServices::Obmenka
         amount: invoice.amount.to_f,
         description: "Payment for #{order.public_id}",
         sender: order.income_account,
-        success_url: routes_helper.public_payment_status_success_url(order_id: order.public_id),
-        fail_url: routes_helper.public_payment_status_fail_url(order_id: order.public_id)
+        success_url: order.success_redirect,
+        fail_url: order.failed_redirect
       }
     end
 

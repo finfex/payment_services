@@ -22,6 +22,8 @@ class PaymentServices::QIWI
         amountInteger: whole_amount,
         amountFraction: fractional_amount,
         currency: QIWI_CURRENCY_RUB,
+        urlSuccess: order.success_redirect,
+        urlFailure: order.failed_redirect,
         "extra['comment']" => I18n.t('payment_systems.default_product', order_id: order.public_id),
         "extra['account']" => order.income_wallet.account
       }.to_query
