@@ -5,10 +5,11 @@ require_relative 'client'
 
 class PaymentServices::Binance
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
-    INVOICED_CURRENCIES = %w[XRP XEM]
     Error = Class.new StandardError
     PayoutCreateRequestFailed = Class.new Error
     WithdrawHistoryRequestFailed = Class.new Error
+
+    delegate :outcome_transaction_fee_amount, to: :payment_system
 
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:, order_payout_id:)
       make_payout(
@@ -36,11 +37,11 @@ class PaymentServices::Binance
       payout = Payout.create!(amount: amount, destination_account: destination_account, order_payout_id: order_payout_id)
       payout_params = {
         coin: payout.amount_currency,
-        amount: amount.to_d,
+        amount: amount.to_d + (outcome_transaction_fee_amount || 0),
         address: destination_account,
         network: payout.token_network
       }
-      payout_params[:addressTag] = payout.order_fio_out if invoice_required?
+      payout_params[:addressTag] = payout.additional_info if payout.has_additional_info?
       response = client.create_payout(params: payout_params)
       raise PayoutCreateRequestFailed, "Can't create payout: #{response['msg']}" if create_payout_response_failed?(response)
 
@@ -57,10 +58,6 @@ class PaymentServices::Binance
 
     def matches?(payout:, transaction:)
       transaction['id'] == payout.withdraw_id && transaction['amount'].to_d == payout.amount.to_d
-    end
-
-    def invoice_required?
-      INVOICED_CURRENCIES.include?(wallet.currency.to_s)
     end
 
     def client
