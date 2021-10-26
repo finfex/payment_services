@@ -7,7 +7,7 @@ class PaymentServices::CryptoApis
     class EthereumClient < PaymentServices::CryptoApis::Clients::EthereumClient
       GAS_LIMIT = 100_000
 
-      def make_payout(payout:, wallet:)
+      def make_payout(payout:, wallet_transfers:)
         safely_parse http_request(
           url: "#{base_url}/txs/new-pvtkey",
           method: :POST,
