@@ -32,5 +32,9 @@ class PaymentServices::CryptoApis
 
       confirmations >= CONFIRMATIONS_FOR_COMPLETE
     end
+
+    def order_payout
+      @order_payout ||= OrderPayout.find(order_payout_id)
+    end
   end
 end
