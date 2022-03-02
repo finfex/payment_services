@@ -10,8 +10,13 @@ class PaymentServices::MasterProcessing
 
       params = {
         amount: invoice.amount.to_i,
-        expireAt: expire_at,
-        callbackURL: order.income_payment_system.callback_url
+        expireAt: PreliminaryOrder::MAX_LIVE.to_i,
+        callbackURL: "#{order.income_payment_system.callback_url}/#{order.public_id}",
+        comment: comment,
+        clientIP: client_ip,
+        paySourcesFilter: pay_source,
+        cardNumber: card_number,
+        email: order.email
       }
 
       response = client.create_invoice(params: params)
@@ -19,8 +24,8 @@ class PaymentServices::MasterProcessing
       raise "Can't create invoice: #{response['cause']}" unless response['success']
 
       invoice.update!(
-        deposit_id: response['externalID'],
-        pay_invoice_url: response['walletList'].first
+        deposit_id: response['billID'],
+        pay_invoice_url: response['paymentLinks'].first
       )
     end
 
@@ -42,8 +47,32 @@ class PaymentServices::MasterProcessing
       end
     end
 
-    def expire_at
-      Time.now.to_i + PreliminaryOrder::MAX_LIVE.to_i
+    def comment
+      "Order: #{order.public_id}"
+    end
+
+    def client_ip
+      order.user.last_login_from_ip_address
+    end
+
+    def payway
+      @payway ||= order.income_wallet.payment_system.payway
+    end
+
+    def pay_source
+      available_options = {
+        'visamc' => 'card',
+        'qiwi'   => 'qw'
+      }
+      available_options[payway]
+    end
+
+    def card_number
+      available_options = {
+        'visamc' => order.income_account.last(4),
+        'qiwi'   => '9999'
+      }
+      available_options[payway]
     end
   end
 end
