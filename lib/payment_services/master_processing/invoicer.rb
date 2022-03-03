@@ -68,7 +68,7 @@ class PaymentServices::MasterProcessing
     end
 
     def client_ip
-      order.user.last_login_from_ip_address || ""
+      order.remote_ip || ""
     end
 
     def payway
