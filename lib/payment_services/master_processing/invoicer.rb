@@ -35,7 +35,7 @@ class PaymentServices::MasterProcessing
     end
 
     def pay_invoice_url
-      invoice.reload.pay_invoice_url
+      invoice.reload.pay_invoice_url if invoice
     end
 
     def async_invoice_state_updater?

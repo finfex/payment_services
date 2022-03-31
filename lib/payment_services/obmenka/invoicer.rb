@@ -20,7 +20,7 @@ class PaymentServices::Obmenka
     end
 
     def pay_invoice_url
-      invoice.reload.pay_url
+      invoice.reload.pay_url if invoice
     end
 
     def async_invoice_state_updater?
