@@ -49,6 +49,14 @@ class PaymentServices::CryptoApisV2
       )
     end
 
+    def classic_to_x_address(classic_address, address_tag)
+      safely_parse(http_request(
+        url: "https://rest.cryptoapis.io/v2/blockchain-tools/xrp/mainnet/encode-x-address/#{classic_address}/#{address_tag}",
+        method: :GET,
+        headers: build_headers
+      ))['data']['item']['xAddress']
+    end
+
     private
 
     attr_reader :api_key, :blockchain
@@ -75,12 +83,14 @@ class PaymentServices::CryptoApisV2
     end
 
     def build_account_payout_body(payout, wallet_transfer)
-      {
+      body = {
         amount: wallet_transfer.amount.to_f.to_s,
         feePriority: account_fee_priority,
         callbackSecretKey: wallet_transfer.wallet.outcome_api_secret,
         recipientAddress: payout.address
       }
+      body[:recipientAddress] = classic_to_x_address(body[:recipientAddress], payout.order_fio) if blockchain.xrp?
+      body
     end
 
     def build_utxo_payout_body(payout, wallet_transfer)
@@ -100,7 +110,7 @@ class PaymentServices::CryptoApisV2
     end
 
     def account_fee_priority
-      blockchain.fungible_token? ? LOW_FEE_PRIORITY : DEFAULT_FEE_PRIORITY
+      blockchain.fungible_token? || blockchain.xrp? ? LOW_FEE_PRIORITY : DEFAULT_FEE_PRIORITY
     end
 
     def utxo_fee_priority

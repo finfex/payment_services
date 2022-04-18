@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
-class PaymentServices::CryptoApisV2
+class PaymentServices::BlockIo
   class Payout < ApplicationRecord
+    CONFIRMATIONS_FOR_COMPLETE = 1
     include Workflow
-    self.table_name = 'crypto_apis_payouts'
+    self.table_name = 'block_io_payouts'
 
     scope :ordered, -> { order(id: :desc) }
 
     monetize :amount_cents, as: :amount
     validates :amount_cents, :address, :fee, :state, presence: true
+
+    alias_attribute :txid, :transaction_id
 
     workflow_column :state
     workflow do
@@ -17,28 +20,32 @@ class PaymentServices::CryptoApisV2
       end
       state :paid do
         event :confirm, transitions_to: :completed
-        event :fail, transitions_to: :failed
       end
       state :completed
       state :failed
     end
 
-    def pay(request_id:)
-      update(request_id: request_id)
+    def pay(transaction_id:)
+      update(transaction_id: transaction_id)
     end
 
     def order_payout
       @order_payout ||= OrderPayout.find(order_payout_id)
     end
 
-    def order_fio
-      order_payout.order.outcome_fio.presence || order_payout.order.outcome_unk
+    def update_payout_details!(transaction:)
+      update!(
+        transaction_created_at: transaction.transaction_created_at,
+        fee: transaction.total_spend - amount.to_f,
+        confirmations: transaction.confirmations
+      )
+      confirm! if confirmed?
     end
 
-    def update_payout_details!(transaction:)
-      update!(confirmed: transaction.confirmed?, fee: transaction.fee)
+    private
 
-      confirm! if confirmed?
+    def confirmed?
+      confirmations >= CONFIRMATIONS_FOR_COMPLETE
     end
   end
 end
