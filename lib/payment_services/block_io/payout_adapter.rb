@@ -10,14 +10,17 @@ require_relative 'transaction'
 class PaymentServices::BlockIo
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
     MIN_PAYOUT_AMOUNT = 0.00002 # Block.io restriction
-    ALLOWED_CURRENCIES = %w(BTC LTC).freeze
+    ALLOWED_CURRENCIES = %w(btc ltc).freeze
+    DEFAULT_FEE_PRIORITY = 'low'
+    BTC_FEE_PRIORITY = 'medium'
     Error = Class.new StandardError
     TansactionIdNotReceived = Class.new Error
 
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:, order_payout_id:)
-      raise "Можно делать выплаты только в #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(amount.currency.to_s)
-      raise "Кошелек должен быть в  #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(wallet.currency.to_s)
-      raise 'Валюты должны совпадать' unless amount.currency.to_s == wallet.currency.to_s
+      amount_currency = amount.currency.to_s.downcase
+      raise "Можно делать выплаты только в #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(amount_currency)
+      raise "Кошелек должен быть в  #{ALLOWED_CURRENCIES.join(', ')}" unless ALLOWED_CURRENCIES.include?(wallet_currency)
+      raise 'Валюты должны совпадать' unless amount_currency == wallet_currency
       raise "Минимальная выплата #{MIN_PAYOUT_AMOUNT}, к выплате #{amount}" if amount.to_f < MIN_PAYOUT_AMOUNT
 
       make_payout(
@@ -51,7 +54,8 @@ class PaymentServices::BlockIo
       response = client.make_payout(
         address: destination_account,
         amount: amount.format(decimal_mark: '.', symbol: nil),
-        nonce: transaction_id
+        nonce: transaction_id,
+        fee_priority: fee_priority
       )
       transaction_id = client.extract_transaction_id(response)
       raise TansactionIdNotReceived, response.to_s unless transaction_id
@@ -72,6 +76,14 @@ class PaymentServices::BlockIo
       raw_transaction = find_transaction(txid: payout.transaction_id, transactions: wallet_transactions)
 
       Transaction.build_from(raw_transaction: raw_transaction)
+    end
+
+    def fee_priority
+      wallet_currency.btc? ? BTC_FEE_PRIORITY : DEFAULT_FEE_PRIORITY
+    end
+
+    def wallet_currency
+      @wallet_currency ||= wallet.currency.to_s.downcase.inquiry
     end
 
     def client

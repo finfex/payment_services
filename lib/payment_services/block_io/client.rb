@@ -9,16 +9,15 @@ class PaymentServices::BlockIo
     include AutoLogger
     Error = Class.new StandardError
     API_VERSION = 2
-    DEFAULT_FEE_PRIORITY = 'low'
 
     def initialize(api_key:, pin:)
       @api_key = api_key
       @pin = pin
     end
 
-    def make_payout(address:, amount:, nonce:)
+    def make_payout(address:, amount:, nonce:, fee_priority:)
       logger.info "---- Request payout to: #{address}, on #{amount} ----"
-      transaction = block_io_client.prepare_transaction(amounts: amount, to_addresses: address, priority: DEFAULT_FEE_PRIORITY)
+      transaction = block_io_client.prepare_transaction(amounts: amount, to_addresses: address, priority: fee_priority)
       signed_transaction = block_io_client.create_and_sign_transaction(transaction)
       submit_transaction_response = block_io_client.submit_transaction(transaction_data: signed_transaction)
       logger.info "---- Response: #{submit_transaction_response.to_s} ----"
