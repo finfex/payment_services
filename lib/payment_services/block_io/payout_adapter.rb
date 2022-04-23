@@ -79,7 +79,7 @@ class PaymentServices::BlockIo
     end
 
     def fee_priority
-      wallet_currency.btc? ? BTC_FEE_PRIORITY : DEFAULT_FEE_PRIORITY
+      DEFAULT_FEE_PRIORITY
     end
 
     def wallet_currency
