@@ -4,22 +4,34 @@ class PaymentServices::BlockIo
   class Transaction
     include Virtus.model
 
-    attribute :transaction_id, String
+    CONFIRMATIONS_FOR_COMPLETE = 1
+
+    attribute :id, String
     attribute :confirmations, Integer
-    attribute :transaction_created_at, DateTime
-    attribute :total_spend, Float
+    attribute :source, String
 
     def self.build_from(raw_transaction:)
       new(
-        transaction_id: raw_transaction['txid'],
+        id: raw_transaction['txid'],
         confirmations: raw_transaction['confirmations'],
-        transaction_created_at: Time.at(raw_transaction['time']).to_datetime.utc,
-        total_spend: raw_transaction['total_amount_sent'].to_f
+        source: raw_transaction
       )
     end
 
     def to_s
-      attributes.to_s
+      source.to_s
+    end
+
+    def successful?
+      confirmations >= CONFIRMATIONS_FOR_COMPLETE
+    end
+
+    def created_at
+      Time.at(source['time']).to_datetime.utc
+    end
+
+    def total_spend
+      source['total_amount_sent'].to_f
     end
   end
 end
