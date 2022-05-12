@@ -3,7 +3,7 @@
 class PaymentServices::Kuna
   class Client
     include AutoLogger
-    TIMEOUT = 10
+    TIMEOUT = 30
     API_URL = 'https://api.kuna.io'
 
     def initialize(api_key:, secret_key:)
