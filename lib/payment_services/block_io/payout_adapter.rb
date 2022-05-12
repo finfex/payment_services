@@ -11,7 +11,7 @@ class PaymentServices::BlockIo
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
     MIN_PAYOUT_AMOUNT = 0.00002 # Block.io restriction
     ALLOWED_CURRENCIES = %w(btc ltc).freeze
-    DEFAULT_FEE_PRIORITY = 'low'
+    DEFAULT_FEE_PRIORITY = 'medium'
     BTC_FEE_PRIORITY = 'medium'
     Error = Class.new StandardError
     TansactionIdNotReceived = Class.new Error
