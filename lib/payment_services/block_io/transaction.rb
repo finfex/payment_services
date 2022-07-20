@@ -23,7 +23,7 @@ class PaymentServices::BlockIo
     end
 
     def successful?
-      currency.btc? || confirmations >= CONFIRMATIONS_FOR_COMPLETE
+      currency_btc? || confirmations >= CONFIRMATIONS_FOR_COMPLETE
     end
 
     def created_at
@@ -36,8 +36,8 @@ class PaymentServices::BlockIo
 
     private
 
-    def currency
-      @currency ||= source['currency'].inquiry
+    def currency_btc?
+      source['currency'] == 'btc'
     end
   end
 end
