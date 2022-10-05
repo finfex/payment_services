@@ -31,7 +31,7 @@ class PaymentServices::MasterProcessing
     end
 
     def self.extract_pay_invoice_url(raw_response)
-      raw_response['paymentURL'] || raw_response['paymentLinks'].first
+      raw_response['paymentURL'] || raw_response['paymentLinks']&.first
     end
   end
 end
