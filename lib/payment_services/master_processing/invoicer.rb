@@ -2,13 +2,16 @@
 
 require_relative 'invoice'
 require_relative 'client'
+require_relative 'response'
 
 class PaymentServices::MasterProcessing
   class Invoicer < ::PaymentServices::Base::Invoicer
     QIWI_DUMMY_CARD_TAIL = '9999'
     AVAILABLE_PAYSOURCE_OPTIONS = {
-      'visamc' => 'card',
-      'qiwi'   => 'qw'
+      'visamc'  => 'card',
+      'cardh2h' => 'card',
+      'qiwi'    => 'qw',
+      'qiwih2h' => 'qw'
     }
 
     def create_invoice(money)
@@ -24,13 +27,14 @@ class PaymentServices::MasterProcessing
         email: order.email
       }
 
-      response = client.create_invoice(params: params)
+      raw_response = client.create_invoice(params: params, payway: payway)
+      response = Response.build_from(raw_response: raw_response)
 
-      raise "Can't create invoice: #{response['cause']}" unless response['success']
+      raise "Can't create invoice: #{response.error_message}" unless response.success?
 
       invoice.update!(
-        deposit_id: response['billID'],
-        pay_invoice_url: response['paymentLinks'].first
+        deposit_id: response.deposit_id,
+        pay_invoice_url: response.pay_invoice_url
       )
     end
 
@@ -80,9 +84,13 @@ class PaymentServices::MasterProcessing
     end
 
     def the_last_four_card_number
-      return QIWI_DUMMY_CARD_TAIL if payway.qiwi?
+      return QIWI_DUMMY_CARD_TAIL if payway_qiwi?
 
       order.income_account.last(4)
+    end
+
+    def payway_qiwi?
+      payway.qiwi? || payway.qiwih2h?
     end
   end
 end
