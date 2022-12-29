@@ -9,7 +9,7 @@ module PaymentServices
     register :payout_adapter, PayoutAdapter
     register :invoicer, Invoicer
 
-    def payout_contains_fee?
+    def self.payout_contains_fee?
       true
     end
   end
