@@ -47,8 +47,8 @@ class PaymentServices::Binance
       !additional_info.nil?
     end
 
-    def token_address
-      order.outcome_payment_system.token_address.presence
+    def token_network
+      order.outcome_payment_system.token_network.presence
     end
 
     private
