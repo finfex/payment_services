@@ -6,5 +6,9 @@ module PaymentServices
     autoload :PayoutAdapter, 'payment_services/crypto_apis_v2/payout_adapter'
     register :invoicer, Invoicer
     register :payout_adapter, PayoutAdapter
+
+    def self.payout_contains_fee?
+      true
+    end
   end
 end

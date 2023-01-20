@@ -28,6 +28,10 @@ class PaymentServices::CryptoApisV2
       send("#{currency}_transaction_confirmed?")
     end
 
+    def fee
+      source.dig('fee', 'amount')
+    end
+
     private
 
     def method_missing(method_name)
