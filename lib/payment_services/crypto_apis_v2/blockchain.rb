@@ -54,10 +54,10 @@ class PaymentServices::CryptoApisV2
     end
 
     def process_payout_endpoint(wallet:)
-      if fungible_token?
+      if blockchain.tron?
         "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/feeless-token-transaction-requests"
       elsif account_model_blockchain?
-        "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/transaction-requests"
+        "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/token-transaction-requests"
       else
         "#{proccess_payout_base_url(wallet.merchant_id)}/transaction-requests"
       end
