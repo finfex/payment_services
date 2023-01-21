@@ -58,8 +58,10 @@ class PaymentServices::CryptoApisV2
         "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/feeless-token-transaction-requests"
       elsif account_model_blockchain? && currency.inquiry.usdt?
         "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/token-transaction-requests"
-      else
+      elsif account_model_blockchain?
         "#{proccess_payout_base_url(wallet.merchant_id)}/addresses/#{wallet.account}/transaction-requests"
+      else
+        "#{proccess_payout_base_url(wallet.merchant_id)}/transaction-requests"
       end
     end
 
