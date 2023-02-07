@@ -34,7 +34,7 @@ class PaymentServices::Paylama
     end
 
     def invoice
-      @invoice ||= Invoice.find_by!(order_public_id: order.public_id)
+      @invoice ||= Invoice.find_by(order_public_id: order.public_id)
     end
 
     private
