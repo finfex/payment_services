@@ -30,7 +30,7 @@ class PaymentServices::PaylamaCrypto
     end
 
     def valid_amount?(amount_money)
-      Money.from_amount(amount, currency) == amount_money
+      amount == 0 || Money.from_amount(amount, currency) == amount_money
     end
 
     def succeed?
