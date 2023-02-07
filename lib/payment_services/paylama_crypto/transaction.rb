@@ -29,8 +29,8 @@ class PaymentServices::PaylamaCrypto
       source.to_s
     end
 
-    def valid_amount?(amount_money)
-      amount == 0 || Money.from_amount(amount, currency) == amount_money
+    def valid_amount?(payout_amount)
+      amount == 0 || amount == payout_amount.to_f
     end
 
     def succeed?
