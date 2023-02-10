@@ -48,7 +48,7 @@ class PaymentServices::MasterProcessing
         callbackURL: wallet.payment_system.callback_url
       }
       response = client.process_payout(endpoint: endpoint, params: params)
-      raise "Can't process payout: #{response['status']}" unless response['status'] == PAYOUT_ACCEPTED_RESPONSE
+      raise "Can't process payout: #{response}" unless response['status'] == PAYOUT_ACCEPTED_RESPONSE
 
       payout.pay!(withdrawal_id: response['externalID'])
     end
