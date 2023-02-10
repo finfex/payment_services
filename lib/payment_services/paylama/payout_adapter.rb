@@ -27,7 +27,7 @@ class PaymentServices::Paylama
       return if payout.pending?
 
       response = client.payment_status(payment_id: payout.withdrawal_id, type: 'withdraw')
-      raise "Can't get payment information: #{response['cause']}" unless response['ID']
+      raise "Can't get payment information: #{response}" unless response['ID']
 
       payout.update_state_by_provider(response['status'])
       response
@@ -41,7 +41,7 @@ class PaymentServices::Paylama
     def make_payout(amount:, destination_account:, order_payout_id:)
       @payout = Payout.create!(amount: amount, destination_account: destination_account, order_payout_id: order_payout_id)
       response = client.process_fiat_payout(params: payout_params)
-      raise "Can't create payout: #{response['cause']}" unless response['success']
+      raise "Can't create payout: #{response}" unless response['success']
 
       payout.pay!(withdrawal_id: response['billID'])
     end
