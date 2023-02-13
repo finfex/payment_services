@@ -21,6 +21,7 @@ class PaymentServices::MasterProcessing
 
       state :paid do
         on_entry do
+          order.append_comment("income transaction: #{deposit_id}")
           order.auto_confirm!(income_amount: amount)
         end
       end

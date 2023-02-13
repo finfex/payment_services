@@ -17,6 +17,7 @@ class PaymentServices::PaylamaCrypto
 
       state :paid do
         on_entry do
+          order.append_comment("income transaction: #{order.income_wallet.name}")
           order.auto_confirm!(income_amount: amount)
         end
       end
@@ -34,6 +35,10 @@ class PaymentServices::PaylamaCrypto
 
       pay!(payload: transaction) if transaction.succeed?
       cancel! if transaction.failed?
+    end
+
+    def order
+      Order.find_by(public_id: order_public_id) || PreliminaryOrder.find_by(public_id: order_public_id)
     end
 
     private
