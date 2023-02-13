@@ -17,8 +17,7 @@ class PaymentServices::PaylamaCrypto
 
       state :paid do
         on_entry do
-          order.append_comment("income transaction: #{order.income_wallet.name}")
-          order.auto_confirm!(income_amount: amount)
+          order.auto_confirm!(income_amount: amount, hash: order.income_wallet.name)
         end
       end
       state :cancelled

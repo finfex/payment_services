@@ -24,8 +24,7 @@ class PaymentServices::Paylama
 
       state :paid do
         on_entry do
-          order.append_comment("income transaction: #{deposit_id}")
-          order.auto_confirm!(income_amount: amount)
+          order.auto_confirm!(income_amount: amount, hash: deposit_id)
         end
       end
       state :cancelled
