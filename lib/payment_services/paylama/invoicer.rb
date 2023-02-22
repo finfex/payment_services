@@ -19,7 +19,7 @@ class PaymentServices::Paylama
     end
 
     def pay_invoice_url
-      URI.parse(invoice.reload.pay_url)
+      invoice.present? ? URI.parse(invoice.reload.pay_url) : ''
     end
 
     def async_invoice_state_updater?
