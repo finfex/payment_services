@@ -37,7 +37,7 @@ class PaymentServices::Base
       res = JSON.parse(response.body)
       logger.info "Response: #{res}"
       res
-    rescue JSON::ParserError => err
+    rescue JSON::ParserError, TypeError => err
       logger.warn "Request failed #{response.class} #{response.body}"
       Bugsnag.notify err do |report|
         report.add_tab(:response, response_class: response.class, response_body: response.body)
