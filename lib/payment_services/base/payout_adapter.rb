@@ -28,6 +28,21 @@ class PaymentServices::Base
 
     private
 
+    def api_keys
+      @api_keys ||= begin
+        payment_service_name = self.class.name.delete_suffix('::PayoutAdapter')
+        PaymentServiceApiKey.find_by(payment_service_name: payment_service_name) || raise("Ключи для #{payment_service_name} не заведены")
+      end
+    end
+
+    def api_key
+      api_keys.outcome_api_key
+    end
+
+    def api_secret
+      api_keys.outcome_api_secret
+    end
+
     def make_payout(*)
       raise 'not implemented'
     end
