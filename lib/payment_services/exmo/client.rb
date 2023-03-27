@@ -2,7 +2,7 @@
 
 class PaymentServices::Exmo
   class Client < ::PaymentServices::Base::Client
-    API_URL = 'https://api.exmo.com/v1.1'
+    API_URL = 'https://api.exmo.me/v1.1'
 
     def initialize(public_key:, secret_key:)
       @public_key = public_key
