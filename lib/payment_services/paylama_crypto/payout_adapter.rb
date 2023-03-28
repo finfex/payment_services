@@ -46,7 +46,7 @@ class PaymentServices::PaylamaCrypto
     end
 
     def currency
-      @currency ||= PaymentServices::Paylama::CurrencyRepository.build_from(kassa_currency: api_wallet.currency, token_network: wallet.payment_system.token_network).provider_crypto_currency
+      @currency ||= PaymentServices::Paylama::CurrencyRepository.build_from(kassa_currency: wallet.currency, token_network: wallet.payment_system.token_network).provider_crypto_currency
     end
 
     def client
