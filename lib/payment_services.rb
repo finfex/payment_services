@@ -42,6 +42,7 @@ module PaymentServices
   autoload :PaylamaCrypto, 'payment_services/paylama_crypto'
   autoload :ExPay, 'payment_services/ex_pay'
   autoload :OneCrypto, 'payment_services/one_crypto'
+  autoload :AnyPay, 'payment_services/any_pay'
 
   UnauthorizedPayout = Class.new StandardError
 
