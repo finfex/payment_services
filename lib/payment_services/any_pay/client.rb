@@ -12,22 +12,22 @@ class PaymentServices::AnyPay
 
     def create_invoice(params:)
       params = { project_id: PROJECT_ID }.merge(params)
-      request_body = params.merge(sign: build_signature('create-payment', params))
+      request_body = params.merge(sign: build_signature(method_name: 'create-payment', params: params))
       safely_parse(http_request(
         url: "#{API_URL}/create-payment/#{secret_key}",
         method: :POST,
-        body: request_body.to_json,
+        body: request_body,
         headers: build_headers
       )).dig('result')
     end
 
     def transaction(deposit_id:)
       params = { project_id: PROJECT_ID, trans_id: deposit_id }
-      request_body = params.merge(sign: build_signature('payments', params))
+      request_body = params.merge(sign: build_signature(method_name: 'payments', params: params))
       safely_parse(http_request(
         url: "#{API_URL}/payments/#{secret_key}",
         method: :POST,
-        body: request_body.to_json,
+        body: request_body,
         headers: build_headers
       )).dig('result', 'payments', deposit_id)
     end
@@ -43,8 +43,24 @@ class PaymentServices::AnyPay
       }
     end
 
-    def build_signature(api_method_name, params)
-      Digest::SHA256.hexdigest(api_method_name + ":#{api_secret}:" + params.values.join(':') + ":#{api_key}")
+    def build_signature(method_name:, params:)
+      sign_string = [
+        method_name, secret_key, params[:project_id], params[:pay_id],
+        params[:amount], params[:currency], params[:desc], params[:method], api_key 
+      ].join
+      Digest::SHA256.hexdigest(sign_string)
+    end
+
+    def build_request(uri:, method:, body: nil, headers: nil)
+      request = if method == :POST
+                  Net::HTTP::Post.new(uri.request_uri, headers)
+                elsif method == :GET
+                  Net::HTTP::Get.new(uri.request_uri, headers)
+                else
+                  raise "Запрос #{method} не поддерживается!"
+                end
+      request.set_form_data(body)
+      request
     end
   end
 end
