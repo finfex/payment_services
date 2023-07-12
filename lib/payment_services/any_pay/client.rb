@@ -32,6 +32,27 @@ class PaymentServices::AnyPay
       )).dig('result', 'payments', deposit_id)
     end
 
+    def create_payout(params:)
+      request_body = params.merge(sign: build_payout_signature(method_name: 'create-payout', params: params))
+      safely_parse(http_request(
+        url: "#{API_URL}/create-payout/#{secret_key}",
+        method: :POST,
+        body: request_body,
+        headers: build_headers
+      )).dig('result')
+    end
+
+    def payout(withdrawal_id:)
+      params = { trans_id: withdrawal_id }
+      request_body = params.merge(sign: build_payout_signature(method_name: 'payouts', params: params))
+      safely_parse(http_request(
+        url: "#{API_URL}/payouts/#{secret_key}",
+        method: :POST,
+        body: request_body,
+        headers: build_headers
+      )).dig('result', 'payouts', withdrawal_id)
+    end
+
     private
 
     attr_reader :api_key, :secret_key
@@ -48,6 +69,18 @@ class PaymentServices::AnyPay
         method_name, secret_key, params[:project_id], params[:pay_id],
         params[:amount], params[:currency], params[:desc], params[:method], api_key 
       ].join
+      sha256_hex(sign_string)
+    end
+
+    def build_payout_signature(method_name:, params:)
+      sign_string = [
+        method_name, secret_key, params[:payout_id], params[:payout_type],
+        params[:amount], params[:wallet], api_key 
+      ].join
+      sha256_hex(sign_string)
+    end
+
+    def sha256_hex(sign_string)
       Digest::SHA256.hexdigest(sign_string)
     end
 
