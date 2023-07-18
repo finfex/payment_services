@@ -11,6 +11,7 @@ class PaymentServices::OneCrypto
     attribute :currency, String
     attribute :status, String
     attribute :transaction_id, String
+    attribute :fee, Float
     attribute :source, Hash
 
     def self.build_from(raw_transaction)
@@ -19,6 +20,7 @@ class PaymentServices::OneCrypto
         currency: raw_transaction['token'],
         status: raw_transaction['status'],
         transaction_id: raw_transaction['hash'],
+        fee: raw_transaction['transaction_commission'].to_f,
         source: raw_transaction
       )
     end
@@ -28,7 +30,7 @@ class PaymentServices::OneCrypto
     end
 
     def valid_amount?(payout_amount, payout_currency)
-      (amount == 0 || amount == payout_amount) && currency == payout_currency
+      (amount.zero? || amount == payout_amount) && currency == payout_currency
     end
 
     def succeed?
