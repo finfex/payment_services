@@ -7,7 +7,6 @@ class PaymentServices::ExPay
   class Invoicer < ::PaymentServices::Base::Invoicer
     Error = Class.new StandardError
     PROVIDER_TOKEN = 'CARDRUBP2P'
-    PROVIDER_SUBTOKEN = 'CARDRUB'
     MERCHANT_ID = '1'
 
     def create_invoice(money)
@@ -50,7 +49,6 @@ class PaymentServices::ExPay
     def invoice_p2p_params
       {
         token: PROVIDER_TOKEN,
-        sub_token: PROVIDER_SUBTOKEN,
         amount: order.income_money.to_f,
         client_transaction_id: order.public_id.to_s,
         client_merchant_id: MERCHANT_ID,
