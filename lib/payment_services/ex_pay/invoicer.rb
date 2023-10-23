@@ -10,17 +10,19 @@ class PaymentServices::ExPay
     PROVIDER_SUBTOKEN = 'CARDRUB'
     MERCHANT_ID = '1'
 
-    def prepare_invoice_and_get_wallet!(currency:, token_network:)
-      create_invoice!
+    def create_invoice(money)
+      Invoice.create!(amount: money, order_public_id: order.public_id)
       response = client.create_invoice(params: invoice_p2p_params)
       raise Error, response['description'] unless response['status'] == Invoice::INITIAL_PROVIDER_STATE
 
-      invoice.update!(deposit_id: response['tracker_id'])
-      PaymentServices::Base::Wallet.new(address: response['refer'], name: response.dig('extra_info', 'recipient_name'))
+      invoice.update!(
+        deposit_id: response['tracker_id'],
+        pay_url: response['alter_refer']
+      )
     end
 
-    def create_invoice(money)
-      invoice
+    def pay_invoice_url
+      (invoice.present? && invoice.reload.pay_url.present?) ? URI.parse(invoice.pay_url) : ''
     end
 
     def async_invoice_state_updater?
