@@ -99,7 +99,7 @@ class PaymentServices::PayForUH2h
 
     def fetch_transaction
       PROVIDER_REQUEST_RETRIES.times do
-        sleep 2
+        sleep 3
 
         transaction = client.transaction(deposit_id: invoice.deposit_id)
         break transaction if transaction['status'] == PROVIDER_REQUISITES_FOUND_STATE
