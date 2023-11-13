@@ -7,6 +7,11 @@ class PaymentServices::ExPay
   class Invoicer < ::PaymentServices::Base::Invoicer
     Error = Class.new StandardError
     MERCHANT_ID = '1'
+    CURRENCY_TO_PROVIDER_TOKEN = {
+      'RUB' => 'CARDRUBP2P',
+      'UZS' => 'UZSP2P',
+      'AZN' => 'AZNP2P'
+    }.freeze
 
     def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
@@ -38,7 +43,7 @@ class PaymentServices::ExPay
 
     private
 
-    delegate :income_payment_system, to: :order
+    delegate :income_payment_system, :income_currency, to: :order
     delegate :callback_url, to: :income_payment_system
 
     def create_invoice!
@@ -47,7 +52,8 @@ class PaymentServices::ExPay
 
     def invoice_p2p_params
       {
-        token: provider_bank,
+        token: CURRENCY_TO_PROVIDER_TOKEN[income_currency.to_s],
+        sub_token: provider_bank,
         amount: order.income_money.to_f,
         client_transaction_id: order.public_id.to_s,
         client_merchant_id: MERCHANT_ID,

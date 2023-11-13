@@ -46,7 +46,7 @@ class PaymentServices::Base
         'rub' => {
           'sberbank' => 'SBERRUB',
           'tinkoff'  => 'TCSBRUB',
-          ''         => 'SBERRUB'
+          ''         => 'CARDRUB'
         },
         'uzs' => {
           'humo' => 'HUMOUZS',
