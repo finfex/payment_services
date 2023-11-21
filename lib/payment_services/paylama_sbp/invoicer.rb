@@ -5,12 +5,10 @@ require_relative 'client'
 
 class PaymentServices::PaylamaSbp
   class Invoicer < ::PaymentServices::Base::Invoicer
-    Error = Class.new StandardError
-
     def prepare_invoice_and_get_wallet!(currency:, token_network:)
       create_invoice!
       response = client.create_provider_invoice(params: invoice_fps_params)
-      raise Error, response['cause'] unless response['success']
+      raise response['cause'] unless response['success']
 
       invoice.update!(deposit_id: response['externalID'])
       PaymentServices::Base::Wallet.new(

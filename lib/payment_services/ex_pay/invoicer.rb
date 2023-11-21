@@ -5,7 +5,6 @@ require_relative 'client'
 
 class PaymentServices::ExPay
   class Invoicer < ::PaymentServices::Base::Invoicer
-    Error = Class.new StandardError
     MERCHANT_ID = '1'
     CURRENCY_TO_PROVIDER_TOKEN = {
       'RUB' => 'CARDRUBP2P',
@@ -16,7 +15,7 @@ class PaymentServices::ExPay
     def create_invoice(money)
       Invoice.create!(amount: money, order_public_id: order.public_id)
       response = client.create_invoice(params: invoice_p2p_params)
-      raise Error, response['description'] unless response['status'] == Invoice::INITIAL_PROVIDER_STATE
+      raise response['description'] unless response['status'] == Invoice::INITIAL_PROVIDER_STATE
 
       invoice.update!(
         deposit_id: response['tracker_id'],
