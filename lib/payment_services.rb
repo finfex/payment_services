@@ -45,6 +45,7 @@ module PaymentServices
   autoload :ExPay, 'payment_services/ex_pay'
   autoload :OneCrypto, 'payment_services/one_crypto'
   autoload :AnyPay, 'payment_services/any_pay'
+  autoload :MerchantAlikassa, 'payment_services/merchant_alikassa'
   autoload :CoinPaymentsHub, 'payment_services/coin_payments_hub'
   autoload :PayForU, 'payment_services/pay_for_u'
   autoload :BestApi, 'payment_services/best_api'
