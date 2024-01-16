@@ -22,7 +22,7 @@ class PaymentServices::AnyMoney
         amount: amount,
         in_curr: currency.to_s,
         expiry: ANYMONEY_TIME_LIMIT,
-        payway: provider_bank,
+        payway: payway,
         callback_url: order.income_payment_system.callback_url,
         client_email: order.user&.email,
         merchant_payfee: order.income_payment_system.transfer_comission_payer_shop? ? "1" : "0",
@@ -45,14 +45,14 @@ class PaymentServices::AnyMoney
 
     private
 
-    def provider_bank
-      @provider_bank ||= PaymentServices::Base::P2pBankResolver.new(invoicer: self).provider_bank
+    def payway
+      @payway ||= order.income_payment_system.payway
     end
 
     def currency
-      if RUB_PAYWAYS.include?(provider_bank)
+      if RUB_PAYWAYS.include?(payway)
         RUB
-      elsif UAH_PAYWAYS.include?(provider_bank)
+      elsif UAH_PAYWAYS.include?(payway)
         UAH
       end
     end
