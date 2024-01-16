@@ -62,6 +62,14 @@ class PaymentServices::Base
           'tinkoff'  => 'TINKOFF',
           ''         => 'BANK_ANY'
         }
+      },
+      'PaymentServices::AnyMoney::Invoicer' => {
+        'rub' => {
+          ''  => 'qiwi'
+        },
+        'uah' => {
+          ''  => 'visamc_p2p'
+        }
       }
     }.freeze
 

@@ -5,6 +5,7 @@ require_relative 'client'
 
 class PaymentServices::AnyMoney
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
+    PAYWAY = 'visamc_p2p'
     def make_payout!(amount:, payment_card_details:, transaction_id:, destination_account:, order_payout_id:)
       make_payout(
         amount: amount,
@@ -47,7 +48,7 @@ class PaymentServices::AnyMoney
         amount: amount.to_s,
         externalid: @payout_id.to_s,
         out_curr: wallet.currency.to_s.upcase,
-        payway: wallet.payment_system.payway,
+        payway: PAYWAY,
         payee: destination_account
       }
       response = client.create(params: params)
