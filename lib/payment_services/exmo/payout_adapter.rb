@@ -47,7 +47,9 @@ class PaymentServices::Exmo
         currency: currency.upcase,
         address: destination_account
       }
-      payout_params[:invoice] = payout.order_fio if invoice_required?
+      if invoice_required?
+        payout_params[:invoice] = payout.order_fio.present? ? payout.order_fio : '1'
+      end
       payout_params[:amount] = payout_params[:amount].to_i if currency_neo?
       payout_params[:transport] = payout.token_network.upcase if currency_usdt?
       response = client.create_payout(params: payout_params)
