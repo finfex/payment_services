@@ -26,7 +26,7 @@ class PaymentServices::Exmo
       payout = Payout.find(payout_id)
       return if payout.pending?
 
-      response = client.wallet_operations(currency: wallet.currency.to_s, type: 'withdrawal')
+      response = client.wallet_operations(currency: currency.upcase, type: 'withdrawal')
       raise WalletOperationsRequestFailed, "Can't get wallet operations" unless response['items']
 
       raw_transaction = find_transaction_of(payout: payout, transactions: response['items'])
@@ -75,7 +75,11 @@ class PaymentServices::Exmo
     end
 
     def currency
-      wallet.currency.to_s.downcase.inquiry
+      @currency ||= begin
+        cur = wallet.currency.to_s.downcase
+        cur = 'dash' if cur == 'dsh'
+        cur.inquiry
+      end
     end
   end
 end
