@@ -6,7 +6,7 @@ require_relative 'transaction'
 
 class PaymentServices::Exmo
   class PayoutAdapter < ::PaymentServices::Base::PayoutAdapter
-    INVOICED_CURRENCIES = %w[xrp xem]
+    INVOICED_CURRENCIES = %w[xrp xem xlm]
     Error = Class.new StandardError
     PayoutCreateRequestFailed = Class.new Error
     WalletOperationsRequestFailed = Class.new Error
