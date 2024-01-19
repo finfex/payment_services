@@ -35,8 +35,8 @@ class PaymentServices::Blockchair
       raw_transaction = transactions.find { |transaction| match_cardano_transaction?(transaction) }
       return unless raw_transaction
 
-      inputs = transaction['ctbInputs']
-      output = transaction['ctbOutputs'].find { |output| output.match_by_output? }
+      inputs = raw_transaction['ctbInputs']
+      output = raw_transaction['ctbOutputs'].find { |output| output.match_by_output? }
       build_transaction(
         id: raw_transaction['ctbId'],
         created_at: timestamp_in_utc(raw_transaction['ctbTimeIssued']),

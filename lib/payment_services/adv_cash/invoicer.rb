@@ -12,6 +12,10 @@ class PaymentServices::AdvCash
       Invoice.create!(amount: money, order_public_id: order.public_id)
     end
 
+    def invoice
+      @invoice ||= Invoice.find_by(order_public_id: order.public_id)
+    end
+
     def invoice_form_data # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       routes_helper = Rails.application.routes.url_helpers
       invoice = Invoice.find_by!(order_public_id: order.public_id)
