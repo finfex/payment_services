@@ -76,7 +76,8 @@ class PaymentServices::Base
         'rub' => {
           '' => 'Все банки РФ',
           'sberbank' => 'Все банки РФ',
-          'tinkoff'  => 'Все банки РФ'
+          'tinkoff'  => 'Все банки РФ',
+          'qiwi'     => 'Киви'
         },
         'eur' => {
           ''  => 'EUR'
