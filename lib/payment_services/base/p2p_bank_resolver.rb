@@ -75,8 +75,8 @@ class PaymentServices::Base
       'OkoOtc' => {
         'rub' => {
           '' => 'Все банки РФ',
-          'sberbank' => 'Все банки РФ',
-          'tinkoff'  => 'Все банки РФ',
+          'sberbank' => 'Сбербанк',
+          'tinkoff'  => 'Тинькофф',
           'qiwi'     => 'Киви'
         },
         'eur' => {
@@ -106,12 +106,12 @@ class PaymentServices::Base
     end
 
     def provider_bank
-      PAYWAY_TO_PROVIDER_BANK.dig(adapter_class_name, send("#{direction}_currency").to_s.downcase, send("#{direction}_payment_system").bank_name.to_s) || raise("Нету доступного банка для шлюза #{adapter_class_name}")
+      sbp? ? outcome_unk : PAYWAY_TO_PROVIDER_BANK.dig(adapter_class_name, currency, send("#{direction}_payment_system").bank_name.to_s) || raise("Нету доступного банка для шлюза #{adapter_class_name}")
     end
 
     private
 
-    delegate :income_currency, :income_payment_system, :outcome_currency, :outcome_payment_system, to: :order
+    delegate :income_currency, :income_payment_system, :outcome_currency, :outcome_payment_system, :outcome_unk, to: :order
 
     def order
       @order ||= adapter.respond_to?(:order) ? adapter.order : adapter.wallet_transfers.first.order_payout.order
@@ -119,6 +119,14 @@ class PaymentServices::Base
 
     def adapter_class_name
       @adapter_class_name ||= adapter.class.name.split('::')[1]
+    end
+
+    def currency
+      @currency ||= send("#{direction}_currency").to_s.downcase.inquiry
+    end
+
+    def sbp?
+      currency.rub? && outcome_unk.present?
     end
   end
 end
