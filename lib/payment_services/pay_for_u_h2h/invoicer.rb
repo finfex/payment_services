@@ -29,7 +29,10 @@ class PaymentServices::PayForUH2h
     def update_invoice_state!
       transaction = client.transaction(deposit_id: invoice.deposit_id)
       if valid_transaction?(transaction)
-        invoice.update(last_4_digits: transaction.dig('payment', 'customerCardLastDigits'))
+        invoice.update(
+          last_4_digits: transaction.dig('payment', 'customerCardLastDigits'),
+          payment_card_number: transaction.dig('requisites', 'cardInfo')
+        )
         invoice.update_state_by_provider(transaction['status'])
       end
     end
