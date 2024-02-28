@@ -74,18 +74,6 @@ class PaymentServices::Blockchair
       build_transaction(id: raw_transaction['trx_id'], created_at: datetime_string_in_utc(raw_transaction['block_time']), blockchain: blockchain, source: raw_transaction) if raw_transaction
     end
 
-    def match_bitcointest_transaction
-      raw_transaction = transactions_data.find { |transaction| match_bitcoin_transaction?(transaction) }
-      return unless raw_transaction
-
-      build_transaction(
-        id: raw_transaction['transaction_hash'],
-        created_at: datetime_string_in_utc(raw_transaction['time']),
-        blockchain: blockchain,
-        source: raw_transaction.merge(input: most_similar_input_by(output: raw_transaction))
-      )
-    end
-
     def method_missing(method_name)
       super unless method_name.start_with?('match_') && method_name.end_with?('_transaction')
 
@@ -109,13 +97,6 @@ class PaymentServices::Blockchair
     def match_stellar_transaction?(transaction)
       amount = transaction['amount']
       transaction_created_at = datetime_string_in_utc(transaction['created_at'])
-
-      invoice_created_at.utc < transaction_created_at && match_amount?(amount)
-    end
-
-    def match_bitcoin_transaction?(transaction)
-      amount = transaction['input']['value'].to_f / amount_divider
-      transaction_created_at = datetime_string_in_utc(transaction['input']['time'])
 
       invoice_created_at.utc < transaction_created_at && match_amount?(amount)
     end
