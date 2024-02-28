@@ -75,7 +75,7 @@ class PaymentServices::Blockchair
     end
 
     def match_bitcoin_transaction
-      raw_transaction = transactions_data.find { |transaction| match_btc_transaction?(transaction) }
+      raw_transaction = transactions_data.find { |transaction| match_bitcoin_transaction?(transaction) }
       return unless raw_transaction
 
       build_transaction(
