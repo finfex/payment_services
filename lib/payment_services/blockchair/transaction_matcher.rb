@@ -74,7 +74,7 @@ class PaymentServices::Blockchair
       build_transaction(id: raw_transaction['trx_id'], created_at: datetime_string_in_utc(raw_transaction['block_time']), blockchain: blockchain, source: raw_transaction) if raw_transaction
     end
 
-    def match_bitcoin_transaction
+    def match_bitcointest_transaction
       raw_transaction = transactions_data.find { |transaction| match_bitcoin_transaction?(transaction) }
       return unless raw_transaction
 
