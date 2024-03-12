@@ -47,7 +47,7 @@ class PaymentServices::MerchantAlikassa
 
     def invoice_params
       {
-        amount: invoice.amount.to_f,
+        amount: invoice.amount.to_i.to_f,
         order_id: order.public_id.to_s,
         service: "payment_card_number_#{currency.to_s.downcase}_hpp",
         customer_user_id: "#{Rails.env}_user_id_#{order.user_id}",
